@@ -83,6 +83,7 @@ M.mod_quiz.autosave = {
 
         this.save_hidden_field_values();
         this.watch_hidden_fields();
+        this.restore_saved_data();
     },
 
     save_hidden_field_values: function() {
@@ -149,10 +150,163 @@ M.mod_quiz.autosave = {
                 e.target.get('name').match(/_:flagged$/)) {
             return; // Not interesting.
         }
+        this.save_locally(e.target.get('name'), e.target.get('value'), e.target.get('type'));
         this.start_save_timer_if_necessary();
     },
 
+    /**
+     * Save field values using local storage api.
+     * @param string key field name
+     * @param mixed value field value
+     * @param string type field type
+     */
+    save_locally: function(key, value, type){
+//        window.localStorage.clear();
+        // initialise variables.
+        var question_id, sequence_id, sequence_value, data, saved, field_name;
+        
+        // Get sequence id.
+        question_id = this.get_form_question_prefix_from_id(key);
+        sequence_id = question_id+'_:sequencecheck';
+
+        // Get current sequence value.
+        sequence_value = this.hidden_field_values[sequence_id];
+        
+        // Get saved data.
+        data = this.get_saved_question_data(question_id);
+        
+        // Clear old values.
+        if(data && (data.sequencecheck !== sequence_value)){
+            data=null;
+        }
+
+        // If data doesn't exist. Create it.
+        if(!data || !data.fields){
+            data = {
+                    "sequencecheck": sequence_value,
+                    "fields": {}
+                };
+        }
+
+        // Update the field
+        field_name = this.get_form_question_field_name_from_id(key);
+
+        switch(type){
+            case 'checkbox':
+                // Checkbox value is whether they're checked or not.
+                value = Y.one('[id^="'+question_id+'_'+field_name+'"]').get('checked')?1:0;
+                break;
+            case 'editor':
+                // Editors have a name suffix '_id'. The related textareas don't.
+                field_name = field_name.substr(0, field_name.indexOf('_id'));
+                break;
+            
+        }
+        data.fields[field_name] = value;
+        
+        // Save data string.
+        window.localStorage.setItem(question_id, Y.JSON.stringify(data));
+    },
+    
+    /**
+     * Get the current locally saved question data?
+     * @param id
+     */
+    get_saved_question_data: function(id){
+        var data, saved;
+        try {
+            saved = window.localStorage.getItem(id);
+            if(!saved){
+                return data;
+            }
+            data = Y.JSON.parse(saved);
+        }
+        catch (e) {
+        }
+        
+        return data;
+    },
+    
+    get_form_question_prefix_from_id: function(id){
+        return id.substring(0, id.indexOf('_'));
+    },
+    
+    get_form_question_field_name_from_id: function(id){
+        return id.substring(id.indexOf('_')+1);
+    },
+    
+    restore_saved_data: function() {
+        var question_id, key, check_value, data;
+        // loop sequencecheck fields
+        for(key in this.hidden_field_values){
+            var index = key.indexOf('sequencecheck');
+            if(key.indexOf('sequencecheck')<0){
+               continue; 
+            }
+            
+            check_value = this.hidden_field_values[key];
+            question_id = this.get_form_question_prefix_from_id(key);
+            
+            // Get stored data.
+            data = this.get_saved_question_data(question_id);
+            
+            // Is there any data?
+            if(!data || !data.fields){
+                // No data or data fields stored.
+                continue;
+            }
+            
+            // Is the data current? Match current sequence check.
+            if(data.sequencecheck !== check_value){
+                continue;
+            }
+            
+            data.autosave = this;
+            // Data is current. Now restore it.
+            for(var field_id in data.fields){
+                var name = '[name^="'+question_id+'_'+field_id+'"]';
+                var fields = this.form.all(name).each(this.update_field_value_with_saved, data);
+            }
+            
+        }
+    },
+    
+    update_field_value_with_saved: function(field){
+        var name  = this.autosave.get_form_question_field_name_from_id(field.get('name'));
+        
+        var type  = field.get('type');
+        var value = this.fields[name];
+        
+        switch(field.get('type')){
+            case "text":
+                field.set('value', value);
+                break;
+            case "radio":
+                // Radio inputs have multiple fields with the same name and only one selected.
+                
+                // Only set the field with the correct value.
+                if(field.get('value')!==value){
+                    return;
+                }
+                field.set('checked', 'checked');
+                break;
+            case "textarea":
+                field.set('value', value);
+                break;
+            case "checkbox":
+                field.set('checked', value);
+                break;
+            case "select-one":
+                var option = field.one('option[value="'+value+'"]');
+                if(option){
+                    option.set('selected', 1);
+                }
+                break;
+        }
+    },
+
     editor_changed: function(editor) {
+        this.save_locally(editor.id, editor.getContent(), 'editor');
         this.start_save_timer_if_necessary();
     },
 
@@ -222,4 +376,15 @@ M.mod_quiz.autosave = {
 };
 
 
-}, '@VERSION@', {"requires": ["base", "node", "event", "event-valuechange", "node-event-delegate", "io-form"]});
+}, '@VERSION@', {
+    "requires": [
+        "base",
+        "node",
+        "event",
+        "event-valuechange",
+        "node-event-delegate",
+        "io-form",
+        "json-parse",
+        "json-stringify"
+    ]
+});
