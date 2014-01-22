@@ -47,7 +47,7 @@ class backup_quiz_activity_structure_step extends backup_questions_activity_stru
             'reviewspecificfeedback', 'reviewgeneralfeedback',
             'reviewrightanswer', 'reviewoverallfeedback',
             'questionsperpage', 'navmethod', 'shufflequestions', 'shuffleanswers',
-            'questions', 'sumgrades', 'grade', 'timecreated',
+            'sumgrades', 'grade', 'timecreated',
             'timemodified', 'password', 'subnet', 'browsersecurity',
             'delay1', 'delay2', 'showuserpicture', 'showblocks'));
 

@@ -93,6 +93,7 @@ class restore_quiz_activity_structure_step extends restore_questions_activity_st
         $data->timemodified = $this->apply_date_offset($data->timemodified);
 
         // Needed by {@link process_quiz_attempt_legacy}.
+        // TODO MDL-43749.
         $this->oldquizlayout = $data->questions;
         $data->questions = $this->questions_recode_layout($data->questions);
 
@@ -341,6 +342,7 @@ class restore_quiz_activity_structure_step extends restore_questions_activity_st
         $this->process_quiz_attempt($data);
 
         $quiz = $DB->get_record('quiz', array('id' => $this->get_new_parentid('quiz')));
+        // TODO MDL-43749.
         $quiz->oldquestions = $this->oldquizlayout;
         $this->process_legacy_quiz_attempt_data($data, $quiz);
     }

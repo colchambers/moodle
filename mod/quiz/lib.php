@@ -81,7 +81,6 @@ function quiz_add_instance($quiz) {
 
     // Process the options from the form.
     $quiz->created = time();
-    $quiz->questions = '';
     $result = quiz_process_options($quiz);
     if ($result && is_string($result)) {
         return $result;
@@ -124,6 +123,7 @@ function quiz_update_instance($quiz, $mform) {
 
     // Repaginate, if asked to.
     if (!$quiz->shufflequestions && !empty($quiz->repaginatenow)) {
+        // TODO MDL-43749
         $quiz->questions = quiz_repaginate(quiz_clean_layout($oldquiz->questions, true),
                 $quiz->questionsperpage);
     }
@@ -1282,7 +1282,7 @@ function quiz_questions_in_use($questionids) {
     global $DB, $CFG;
     require_once($CFG->libdir . '/questionlib.php');
     list($test, $params) = $DB->get_in_or_equal($questionids);
-    return $DB->record_exists_select('quiz_question_instances',
+    return $DB->record_exists_select('quiz_slots',
             'questionid ' . $test, $params) || question_engine::questions_in_use(
             $questionids, new qubaid_join('{quiz_attempts} quiza',
             'quiza.uniqueid', 'quiza.preview = 0'));
