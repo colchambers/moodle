@@ -18,6 +18,8 @@ This files describes API changes in the quiz code.
 * The following methods, which were part of the internal workings of the quiz,
   have been removed.
       quiz_get_slot_for_question
+      quiz_number_of_questions_in_quiz
+      quiz_repaginate              (there is now a quiz_repaginate_questions with a different API).
 
 
 === 2.6 ===

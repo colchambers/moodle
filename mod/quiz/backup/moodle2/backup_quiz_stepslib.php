@@ -107,7 +107,7 @@ class backup_quiz_activity_structure_step extends backup_questions_activity_stru
         // Define sources.
         $quiz->set_source_table('quiz', array('id' => backup::VAR_ACTIVITYID));
 
-        $qinstance->set_source_table('quiz_question_instances',
+        $qinstance->set_source_table('quiz_slots',
                 array('quizid' => backup::VAR_PARENTID));
 
         $feedback->set_source_table('quiz_feedback',

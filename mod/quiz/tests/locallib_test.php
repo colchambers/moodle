@@ -37,16 +37,6 @@ require_once($CFG->dirroot . '/mod/quiz/locallib.php');
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class mod_quiz_locallib_testcase extends basic_testcase {
-    public function test_quiz_questions_in_quiz() {
-        $this->assertEquals(quiz_questions_in_quiz(''), '');
-        $this->assertEquals(quiz_questions_in_quiz('0'), '');
-        $this->assertEquals(quiz_questions_in_quiz('0,0'), '');
-        $this->assertEquals(quiz_questions_in_quiz('0,0,0'), '');
-        $this->assertEquals(quiz_questions_in_quiz('1'), '1');
-        $this->assertEquals(quiz_questions_in_quiz('1,2'), '1,2');
-        $this->assertEquals(quiz_questions_in_quiz('1,0,2'), '1,2');
-        $this->assertEquals(quiz_questions_in_quiz('0,1,0,0,2,0'), '1,2');
-    }
 
     public function test_quiz_number_of_pages() {
         $this->assertEquals(quiz_number_of_pages('0'), 1);
@@ -58,74 +48,6 @@ class mod_quiz_locallib_testcase extends basic_testcase {
         $this->assertEquals(quiz_number_of_pages('1,2,3,0'), 1);
         $this->assertEquals(quiz_number_of_pages('1,2,3,0'), 1);
         $this->assertEquals(quiz_number_of_pages('0,1,0,0,2,0'), 4);
-    }
-
-    public function test_quiz_number_of_questions_in_quiz() {
-        $this->assertEquals(quiz_number_of_questions_in_quiz('0'), 0);
-        $this->assertEquals(quiz_number_of_questions_in_quiz('0,0'), 0);
-        $this->assertEquals(quiz_number_of_questions_in_quiz('0,0,0'), 0);
-        $this->assertEquals(quiz_number_of_questions_in_quiz('1,0'), 1);
-        $this->assertEquals(quiz_number_of_questions_in_quiz('1,2,0'), 2);
-        $this->assertEquals(quiz_number_of_questions_in_quiz('1,0,2,0'), 2);
-        $this->assertEquals(quiz_number_of_questions_in_quiz('1,2,3,0'), 3);
-        $this->assertEquals(quiz_number_of_questions_in_quiz('1,2,3,0'), 3);
-        $this->assertEquals(quiz_number_of_questions_in_quiz('0,1,0,0,2,0'), 2);
-        $this->assertEquals(quiz_number_of_questions_in_quiz('10,,0,0'), 1);
-    }
-
-    public function test_quiz_clean_layout() {
-        // Without stripping empty pages.
-        $this->assertEquals(quiz_clean_layout(',,1,,,2,,'), '1,2,0');
-        $this->assertEquals(quiz_clean_layout(''), '0');
-        $this->assertEquals(quiz_clean_layout('0'), '0');
-        $this->assertEquals(quiz_clean_layout('0,0'), '0,0');
-        $this->assertEquals(quiz_clean_layout('0,0,0'), '0,0,0');
-        $this->assertEquals(quiz_clean_layout('1'), '1,0');
-        $this->assertEquals(quiz_clean_layout('1,2'), '1,2,0');
-        $this->assertEquals(quiz_clean_layout('1,0,2'), '1,0,2,0');
-        $this->assertEquals(quiz_clean_layout('0,1,0,0,2,0'), '0,1,0,0,2,0');
-
-        // With stripping empty pages.
-        $this->assertEquals(quiz_clean_layout('', true), '0');
-        $this->assertEquals(quiz_clean_layout('0', true), '0');
-        $this->assertEquals(quiz_clean_layout('0,0', true), '0');
-        $this->assertEquals(quiz_clean_layout('0,0,0', true), '0');
-        $this->assertEquals(quiz_clean_layout('1', true), '1,0');
-        $this->assertEquals(quiz_clean_layout('1,2', true), '1,2,0');
-        $this->assertEquals(quiz_clean_layout('1,0,2', true), '1,0,2,0');
-        $this->assertEquals(quiz_clean_layout('0,1,0,0,2,0', true), '1,0,2,0');
-    }
-
-    public function test_quiz_repaginate() {
-        // Test starting with 1 question per page.
-        $this->assertEquals(quiz_repaginate('1,0,2,0,3,0', 0), '1,2,3,0');
-        $this->assertEquals(quiz_repaginate('1,0,2,0,3,0', 3), '1,2,3,0');
-        $this->assertEquals(quiz_repaginate('1,0,2,0,3,0', 2), '1,2,0,3,0');
-        $this->assertEquals(quiz_repaginate('1,0,2,0,3,0', 1), '1,0,2,0,3,0');
-
-        // Test starting with all on one page page.
-        $this->assertEquals(quiz_repaginate('1,2,3,0', 0), '1,2,3,0');
-        $this->assertEquals(quiz_repaginate('1,2,3,0', 3), '1,2,3,0');
-        $this->assertEquals(quiz_repaginate('1,2,3,0', 2), '1,2,0,3,0');
-        $this->assertEquals(quiz_repaginate('1,2,3,0', 1), '1,0,2,0,3,0');
-
-        // Test single question case.
-        $this->assertEquals(quiz_repaginate('100,0', 0), '100,0');
-        $this->assertEquals(quiz_repaginate('100,0', 1), '100,0');
-
-        // No questions case.
-        $this->assertEquals(quiz_repaginate('0', 0), '0');
-
-        // Test empty pages are removed.
-        $this->assertEquals(quiz_repaginate('1,2,3,0,0,0', 0), '1,2,3,0');
-        $this->assertEquals(quiz_repaginate('1,0,0,0,2,3,0', 0), '1,2,3,0');
-        $this->assertEquals(quiz_repaginate('0,0,0,1,2,3,0', 0), '1,2,3,0');
-
-        // Test shuffle option.
-        $this->assertTrue(in_array(quiz_repaginate('1,2,0', 0, true),
-            array('1,2,0', '2,1,0')));
-        $this->assertTrue(in_array(quiz_repaginate('1,2,0', 1, true),
-            array('1,0,2,0', '2,0,1,0')));
     }
 
     public function test_quiz_rescale_grade() {

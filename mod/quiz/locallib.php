@@ -110,10 +110,7 @@ function quiz_create_attempt(quiz $quizobj, $attemptnumber, $lastattempt, $timen
         $attempt->quiz = $quiz->id;
         $attempt->userid = $userid;
         $attempt->preview = 0;
-        $attempt->layout = quiz_clean_layout($quiz->questions, true);
-        if ($quiz->shufflequestions) {
-            $attempt->layout = quiz_repaginate($attempt->layout, $quiz->questionsperpage, true);
-        }
+        $attempt->layout = '';
     } else {
         // Build on last attempt.
         if (empty($lastattempt)) {
@@ -386,24 +383,6 @@ function quiz_has_attempts($quizid) {
 // Functions to do with quiz layout and pages //////////////////////////////////
 
 /**
- * Returns a comma separated list of question ids for the quiz
- *
- * @param string $layout The string representing the quiz layout. Each page is
- *      represented as a comma separated list of question ids and 0 indicating
- *      page breaks. So 5,2,0,3,0 means questions 5 and 2 on page 1 and question
- *      3 on page 2
- * @return string comma separated list of question ids, without page breaks.
- */
-function quiz_questions_in_quiz($layout) {
-    $questions = str_replace(',0', '', quiz_clean_layout($layout, true));
-    if ($questions === '0') {
-        return '';
-    } else {
-        return $questions;
-    }
-}
-
-/**
  * Returns the number of pages in a quiz layout
  *
  * @param string $layout The string representing the quiz layout. Always ends in ,0
@@ -414,98 +393,15 @@ function quiz_number_of_pages($layout) {
 }
 
 /**
- * Returns the number of questions in the quiz layout
- *
- * @param string $layout the string representing the quiz layout.
- * @return int The number of questions in the quiz.
+ * Repaginate the questions in a quiz
+ * @param int $quizid the id of the quiz to repaginate.
+ * @param int $slotsperpage number of items to put on each page. 0 means unlimited.
  */
-function quiz_number_of_questions_in_quiz($layout) {
-    $layout = quiz_questions_in_quiz(quiz_clean_layout($layout));
-    $count = substr_count($layout, ',');
-    if ($layout !== '') {
-        $count++;
-    }
-    return $count;
-}
-
-/**
- * Re-paginates the quiz layout
- *
- * @param string $layout  The string representing the quiz layout. If there is
- *      if there is any doubt about the quality of the input data, call
- *      quiz_clean_layout before you call this function.
- * @param int $perpage The number of questions per page
- * @param bool $shuffle Should the questions be reordered randomly?
- * @return string the new layout string
- */
-function quiz_repaginate($layout, $perpage, $shuffle = false) {
-    $questions = quiz_questions_in_quiz($layout);
-    if (!$questions) {
-        return '0';
-    }
-
-    $questions = explode(',', quiz_questions_in_quiz($layout));
-    if ($shuffle) {
-        shuffle($questions);
-    }
-
-    $onthispage = 0;
-    $layout = array();
-    foreach ($questions as $question) {
-        if ($perpage and $onthispage >= $perpage) {
-            $layout[] = 0;
-            $onthispage = 0;
-        }
-        $layout[] = $question;
-        $onthispage += 1;
-    }
-
-    $layout[] = 0;
-    return implode(',', $layout);
+function quiz_repaginate_questions($quizid, $slotsperpage) {
+    // TODO.
 }
 
 // Functions to do with quiz grades ////////////////////////////////////////////
-
-/**
- * Creates an array of maximum grades for a quiz
- *
- * The grades are extracted from the quiz_question_instances table.
- * @param object $quiz The quiz settings.
- * @return array of grades indexed by question id. These are the maximum
- *      possible grades that students can achieve for each of the questions.
- */
-function quiz_get_all_question_grades($quiz) {
-    global $CFG, $DB;
-
-    $questionlist = quiz_questions_in_quiz($quiz->questions);
-    if (empty($questionlist)) {
-        return array();
-    }
-
-    $params = array($quiz->id);
-    $wheresql = '';
-    if (!is_null($questionlist)) {
-        list($usql, $question_params) = $DB->get_in_or_equal(explode(',', $questionlist));
-        $wheresql = ' AND questionid ' . $usql;
-        $params = array_merge($params, $question_params);
-    }
-
-    $instances = $DB->get_records_sql("SELECT questionid, maxmark, id
-                                    FROM {quiz_question_instances}
-                                    WHERE quizid = ?{$wheresql}", $params);
-
-    $list = explode(',', $questionlist);
-    $grades = array();
-
-    foreach ($list as $qid) {
-        if (isset($instances[$qid])) {
-            $grades[$qid] = $instances[$qid]->maxmark;
-        } else {
-            $grades[$qid] = 1;
-        }
-    }
-    return $grades;
-}
 
 /**
  * Convert the raw grade stored in $attempt into a grade out of the maximum
@@ -602,7 +498,7 @@ function quiz_update_sumgrades($quiz) {
     $sql = 'UPDATE {quiz}
             SET sumgrades = COALESCE((
                 SELECT SUM(maxmark)
-                FROM {quiz_question_instances}
+                FROM {quiz_slots}
                 WHERE quizid = {quiz}.id
             ), 0)
             WHERE id = ?';
@@ -1423,57 +1319,6 @@ function quiz_get_combined_reviewoptions($quiz, $attempts) {
         $alloptions->marks = min($alloptions->marks, $attemptoptions->marks);
     }
     return array($someoptions, $alloptions);
-}
-
-/**
- * Clean the question layout from various possible anomalies:
- * - Remove consecutive ","'s
- * - Remove duplicate question id's
- * - Remove extra "," from beginning and end
- * - Finally, add a ",0" in the end if there is none
- *
- * @param $string $layout the quiz layout to clean up, usually from $quiz->questions.
- * @param bool $removeemptypages If true, remove empty pages from the quiz. False by default.
- * @return $string the cleaned-up layout
- */
-function quiz_clean_layout($layout, $removeemptypages = false) {
-    // Remove repeated ','s. This can happen when a restore fails to find the right
-    // id to relink to.
-    $layout = preg_replace('/,{2,}/', ',', trim($layout, ','));
-
-    // Remove duplicate question ids.
-    $layout = explode(',', $layout);
-    $cleanerlayout = array();
-    $seen = array();
-    foreach ($layout as $item) {
-        if ($item == 0) {
-            $cleanerlayout[] = '0';
-        } else if (!in_array($item, $seen)) {
-            $cleanerlayout[] = $item;
-            $seen[] = $item;
-        }
-    }
-
-    if ($removeemptypages) {
-        // Avoid duplicate page breaks.
-        $layout = $cleanerlayout;
-        $cleanerlayout = array();
-        $stripfollowingbreaks = true; // Ensure breaks are stripped from the start.
-        foreach ($layout as $item) {
-            if ($stripfollowingbreaks && $item == 0) {
-                continue;
-            }
-            $cleanerlayout[] = $item;
-            $stripfollowingbreaks = $item == 0;
-        }
-    }
-
-    // Add a page break at the end if there is none.
-    if (end($cleanerlayout) !== '0') {
-        $cleanerlayout[] = '0';
-    }
-
-    return implode(',', $cleanerlayout);
 }
 
 // Functions for sending notification messages /////////////////////////////////

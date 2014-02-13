@@ -65,7 +65,6 @@ class quiz {
     protected $cm;
     protected $quiz;
     protected $context;
-    protected $questionids;
 
     // Fields set later if that data is needed.
     protected $questions = null;
@@ -88,12 +87,6 @@ class quiz {
         $this->course = $course;
         if ($getcontext && !empty($cm->id)) {
             $this->context = context_module::instance($cm->id);
-        }
-        $questionids = quiz_questions_in_quiz($this->quiz->questions);
-        if ($questionids) {
-            $this->questionids = explode(',', quiz_questions_in_quiz($this->quiz->questions));
-        } else {
-            $this->questionids = array(); // Which idiot made explode(',', '') = array('')?
         }
     }
 
@@ -132,12 +125,9 @@ class quiz {
      * Load just basic information about all the questions in this quiz.
      */
     public function preload_questions() {
-        if (empty($this->questionids)) {
-            throw new moodle_quiz_exception($this, 'noquestions', $this->edit_url());
-        }
-        $this->questions = question_preload_questions($this->questionids,
-                'qqi.maxmark, qqi.id AS instance',
-                '{quiz_question_instances} qqi ON qqi.quizid = :quizid AND q.id = qqi.questionid',
+        $this->questions = question_preload_questions(null,
+                'slot.maxmark, slot.id AS slotid',
+                '{quiz_slots} slot ON slot.quizid = :quizid AND q.id = slot.questionid',
                 array('quizid' => $this->quiz->id));
     }
 
@@ -149,7 +139,7 @@ class quiz {
      */
     public function load_questions($questionids = null) {
         if (is_null($questionids)) {
-            $questionids = $this->questionids;
+            $questionids = array_keys($this->questions);
         }
         $questionstoprocess = array();
         foreach ($questionids as $id) {
@@ -226,7 +216,10 @@ class quiz {
      * @return whether any questions have been added to this quiz.
      */
     public function has_questions() {
-        return !empty($this->questionids);
+        if ($this->questions === null) {
+            $this->preload_questions();
+        }
+        return !empty($this->questions);
     }
 
     /**
@@ -242,7 +235,7 @@ class quiz {
      */
     public function get_questions($questionids = null) {
         if (is_null($questionids)) {
-            $questionids = $this->questionids;
+            $questionids = array_keys($this->questions);
         }
         $questions = array();
         foreach ($questionids as $id) {
@@ -530,7 +523,7 @@ class quiz_attempt {
         $this->pagelayout = array();
 
         // Break up the layout string into pages.
-        $pagelayouts = explode(',0', quiz_clean_layout($this->attempt->layout, true));
+        $pagelayouts = explode(',0', $this->attempt->layout);
 
         // Strip off any empty last page (normally there is one).
         if (end($pagelayouts) == '') {

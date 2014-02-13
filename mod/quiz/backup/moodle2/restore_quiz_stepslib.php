@@ -92,9 +92,10 @@ class restore_quiz_activity_structure_step extends restore_questions_activity_st
         $data->timecreated = $this->apply_date_offset($data->timecreated);
         $data->timemodified = $this->apply_date_offset($data->timemodified);
 
-        // Needed by {@link process_quiz_attempt_legacy}.
-        // TODO MDL-43749.
-        $this->oldquizlayout = $data->questions;
+        if (property_exists($data, 'questions')) {
+            // Needed by {@link process_quiz_attempt_legacy}, in which case it will be present.
+            $this->oldquizlayout = $data->questions;
+        }
 
         // The setting quiz->attempts can come both in data->attempts and
         // data->attempts_number, handle both. MDL-26229.
@@ -246,7 +247,7 @@ class restore_quiz_activity_structure_step extends restore_questions_activity_st
         $data->quizid = $this->get_new_parentid('quiz');
         $data->questionid = $this->get_mappingid('question', $data->questionid);
 
-        $DB->insert_record('quiz_question_instances', $data);
+        $DB->insert_record('quiz_slots', $data);
     }
 
     protected function process_quiz_feedback($data) {

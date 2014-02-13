@@ -78,6 +78,15 @@ function quiz_report_unindex($datum) {
 }
 
 /**
+ * Are there any questions in this quiz?
+ * @param int $quizid the quiz id.
+ */
+function quiz_has_questions($quizid) {
+    global $DB;
+    return $DB->record_exists('quiz_slots', array('quizid', $quizid));
+}
+
+/**
  * Get the slots of real questions (not descriptions) in this quiz, in order.
  * @param object $quiz the quiz.
  * @return array of slot => $question object with fields

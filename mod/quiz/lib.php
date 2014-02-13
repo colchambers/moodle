@@ -121,14 +121,6 @@ function quiz_update_instance($quiz, $mform) {
     $quiz->sumgrades = $oldquiz->sumgrades;
     $quiz->grade     = $oldquiz->grade;
 
-    // Repaginate, if asked to.
-    if (!$quiz->shufflequestions && !empty($quiz->repaginatenow)) {
-        // TODO MDL-43749
-        $quiz->questions = quiz_repaginate(quiz_clean_layout($oldquiz->questions, true),
-                $quiz->questionsperpage);
-    }
-    unset($quiz->repaginatenow);
-
     // Update the database.
     $quiz->id = $quiz->instance;
     $DB->update_record('quiz', $quiz);
@@ -151,6 +143,11 @@ function quiz_update_instance($quiz, $mform) {
     // Delete any previous preview attempts.
     quiz_delete_previews($quiz);
 
+    // Repaginate, if asked to.
+    if (!$quiz->shufflequestions && !empty($quiz->repaginatenow)) {
+        quiz_repaginate_questions($quiz->id, $quiz->questionsperpage);
+    }
+
     return true;
 }
 
@@ -170,7 +167,7 @@ function quiz_delete_instance($id) {
     quiz_delete_all_attempts($quiz);
     quiz_delete_all_overrides($quiz);
 
-    $DB->delete_records('quiz_question_instances', array('quizid' => $quiz->id));
+    $DB->delete_records('quiz_slots', array('quizid' => $quiz->id));
     $DB->delete_records('quiz_feedback', array('quizid' => $quiz->id));
 
     $events = $DB->get_records('event', array('modulename' => 'quiz', 'instance' => $quiz->id));

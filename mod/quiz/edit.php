@@ -119,7 +119,6 @@ $scrollpos = optional_param('scrollpos', '', PARAM_INT);
 
 list($thispageurl, $contexts, $cmid, $cm, $quiz, $pagevars) =
         question_edit_setup('editq', '/mod/quiz/edit.php', true);
-$quiz->questions = quiz_clean_layout($quiz->questions);
 
 $defaultcategoryobj = question_make_default_categories($contexts->all());
 $defaultcategory = $defaultcategoryobj->id . ',' . $defaultcategoryobj->contextid;
@@ -161,16 +160,7 @@ add_to_log($cm->course, 'quiz', 'editquestions',
 // You need mod/quiz:manage in addition to question capabilities to access this page.
 require_capability('mod/quiz:manage', $contexts->lowest());
 
-if (empty($quiz->grades)) {
-    $quiz->grades = quiz_get_all_question_grades($quiz);
-}
-
 // Process commands ============================================================
-if ($quiz->shufflequestions) {
-    // Strip page breaks before processing actions, so that re-ordering works
-    // as expected when shuffle questions is on.
-    $quiz->questions = quiz_repaginate($quiz->questions, 0);
-}
 
 // Get the list of question ids had their check-boxes ticked.
 $selectedquestionids = array();
@@ -202,8 +192,7 @@ if (($down = optional_param('down', false, PARAM_INT)) && confirm_sesskey()) {
 if (optional_param('repaginate', false, PARAM_BOOL) && confirm_sesskey()) {
     // Re-paginate the quiz.
     $questionsperpage = optional_param('questionsperpage', $quiz->questionsperpage, PARAM_INT);
-    $quiz->questions = quiz_repaginate($quiz->questions, $questionsperpage );
-    $DB->set_field('quiz', 'questions', $quiz->questions, array('id' => $quiz->id));
+    quiz_repaginate_questions($quiz->id, $questionsperpage );
     quiz_delete_previews($quiz);
     redirect($afteractionurl);
 }
@@ -317,8 +306,8 @@ if (optional_param('savechanges', false, PARAM_BOOL) && confirm_sesskey()) {
         if (preg_match('!^g([0-9]+)$!', $key, $matches)) {
             // Parse input for question -> grades.
             $questionid = $matches[1];
-            $quiz->grades[$questionid] = unformat_float($value);
-            quiz_update_question_instance($quiz->grades[$questionid], $questionid, $quiz);
+            $newgrade = unformat_float($value);
+            quiz_update_question_instance($newgrade, $questionid, $quiz);
             $deletepreviews = true;
             $recomputesummarks = true;
 
@@ -487,7 +476,6 @@ echo '<div class="quizcontents ' . $quizcontentsclass . '" id="quizcontentsblock
 if ($quiz->shufflequestions) {
     $repaginatingdisabledhtml = 'disabled="disabled"';
     $repaginatingdisabled = true;
-    $quiz->questions = quiz_repaginate($quiz->questions, $quiz->questionsperpage);
 } else {
     $repaginatingdisabledhtml = '';
     $repaginatingdisabled = false;
