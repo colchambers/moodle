@@ -1,6 +1,13 @@
 This files describes API changes in /backup/*,
 information provided here is intended especially for developers.
 
+
+=== 2.7 ===
+
+* restore_questions_activity_structure_step::questions_recode_layout has been
+  removed. No-one other than the quiz should have been using it.
+
+
 === 2.6 ===
 
 * The backup_controller_dbops::create_temptable_from_real_table()

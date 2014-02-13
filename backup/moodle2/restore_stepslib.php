@@ -4295,6 +4295,7 @@ abstract class restore_questions_activity_structure_step extends restore_activit
         $this->inform_new_usage_id($usage->id);
 
         $data->uniqueid = $usage->id;
+        // TODO MDL-43749 remove $quiz->questions
         $upgrader->save_usage($quiz->preferredbehaviour, $data, $qas, $quiz->questions);
     }
 

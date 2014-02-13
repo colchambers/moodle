@@ -145,13 +145,6 @@ class mod_quiz_locallib_testcase extends basic_testcase {
             format_float(0.247, 3));
     }
 
-    public function test_quiz_get_slot_for_question() {
-        $quiz = new stdClass();
-        $quiz->questions = '1,2,0,7,0';
-        $this->assertEquals(1, quiz_get_slot_for_question($quiz, 1));
-        $this->assertEquals(3, quiz_get_slot_for_question($quiz, 7));
-    }
-
     public function test_quiz_attempt_state_in_progress() {
         $attempt = new stdClass();
         $attempt->state = quiz_attempt::IN_PROGRESS;

@@ -95,7 +95,6 @@ class restore_quiz_activity_structure_step extends restore_questions_activity_st
         // Needed by {@link process_quiz_attempt_legacy}.
         // TODO MDL-43749.
         $this->oldquizlayout = $data->questions;
-        $data->questions = $this->questions_recode_layout($data->questions);
 
         // The setting quiz->attempts can come both in data->attempts and
         // data->attempts_number, handle both. MDL-26229.

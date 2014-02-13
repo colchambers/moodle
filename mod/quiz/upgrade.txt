@@ -15,8 +15,13 @@ This files describes API changes in the quiz code.
   naturally, other parts of the code and APIs have been updated to reflect that
   change.
 
+* The following methods, which were part of the internal workings of the quiz,
+  have been removed.
+      quiz_get_slot_for_question
+
 
 === 2.6 ===
+
 * As part of improving the page usability and accessibility, we updated the
   heading levels for quiz module so it has a proper nesting. (MDL-41615)
 

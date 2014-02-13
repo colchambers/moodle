@@ -1476,22 +1476,6 @@ function quiz_clean_layout($layout, $removeemptypages = false) {
     return implode(',', $cleanerlayout);
 }
 
-/**
- * Get the slot for a question with a particular id.
- * @param object $quiz the quiz settings.
- * @param int $questionid the of a question in the quiz.
- * @return int the corresponding slot. Null if the question is not in the quiz.
- */
-function quiz_get_slot_for_question($quiz, $questionid) {
-    $questionids = quiz_questions_in_quiz($quiz->questions);
-    foreach (explode(',', $questionids) as $key => $id) {
-        if ($id == $questionid) {
-            return $key + 1;
-        }
-    }
-    return null;
-}
-
 // Functions for sending notification messages /////////////////////////////////
 
 /**

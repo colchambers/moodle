@@ -286,12 +286,11 @@ function quiz_save_new_layout($quiz) {
  */
 function quiz_update_question_instance($maxmark, $questionid, $quiz) {
     global $DB;
-    $instance = $DB->get_record('quiz_question_instances', array('quizid' => $quiz->id,
+    $slot = $DB->get_record('quiz_slots', array('quizid' => $quiz->id,
             'questionid' => $questionid));
-    $slot = quiz_get_slot_for_question($quiz, $questionid);
 
-    if (!$instance || !$slot) {
-        throw new coding_exception('Attempt to change the max mark of a quesion not in the quiz.');
+    if (!$slot) {
+        throw new coding_exception('Attempt to change the max mark of quesion not in the quiz.');
     }
 
     if (abs($maxmark - $instance->maxmark) < 1e-7) {
@@ -299,10 +298,10 @@ function quiz_update_question_instance($maxmark, $questionid, $quiz) {
         return;
     }
 
-    $instance->maxmark = $maxmark;
-    $DB->update_record('quiz_question_instances', $instance);
+    $slot->maxmark = $maxmark;
+    $DB->update_record('quiz_question_instances', $slot);
     question_engine::set_max_mark_in_attempts(new qubaids_for_quiz($quiz->id),
-            $slot, $maxmark);
+            $slot->slot, $maxmark);
 }
 
 // Private function used by the following two.

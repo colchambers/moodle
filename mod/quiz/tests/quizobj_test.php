@@ -42,7 +42,6 @@ class mod_quiz_class_testcase extends basic_testcase {
         $quiz->reviewattempt = 0x10010;
         $quiz->timeclose = 0;
         $quiz->attempts = 0;
-        $quiz->questions = '1,2,0,3,4,0';
 
         $cm = new stdClass();
         $cm->id = 123;
@@ -71,7 +70,6 @@ class mod_quiz_class_testcase extends basic_testcase {
         $quiz->reviewattempt = 0x10010;
         $quiz->timeclose = 0;
         $quiz->attempts = 0;
-        $quiz->questions = '0';
 
         $cm = new stdClass();
         $cm->id = 123;
