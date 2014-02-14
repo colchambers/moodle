@@ -15,12 +15,19 @@ This files describes API changes in the quiz code.
   naturally, other parts of the code and APIs have been updated to reflect that
   change.
 
-* The following methods, which were part of the internal workings of the quiz,
+* The following functions, which were part of the internal workings of the quiz,
   have been removed.
       quiz_get_slot_for_question
       quiz_number_of_questions_in_quiz
       quiz_repaginate              (there is now a quiz_repaginate_questions with a different API).
+      quiz_add_page_break_at       (see quiz_add_page_break_after_slot)
+      quiz_add_page_break_after    (see quiz_add_page_break_after_slot)
+      quiz_number_of_pages
+      quiz_remove_question         (see quiz_remove_slot)
 
+* The following internal functions have had their API changed.
+      quiz_delete_empty_page: has had its arguments changed to $quiz and $pagenumber.
+      quiz_has_question_use: now takes $quiz and $slot, not $questionid.
 
 === 2.6 ===
 

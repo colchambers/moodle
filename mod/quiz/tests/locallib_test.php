@@ -39,18 +39,6 @@ require_once($CFG->dirroot . '/mod/quiz/locallib.php');
  */
 class mod_quiz_locallib_testcase extends basic_testcase {
 
-    public function test_quiz_number_of_pages() {
-        $this->assertEquals(quiz_number_of_pages('0'), 1);
-        $this->assertEquals(quiz_number_of_pages('0,0'), 2);
-        $this->assertEquals(quiz_number_of_pages('0,0,0'), 3);
-        $this->assertEquals(quiz_number_of_pages('1,0'), 1);
-        $this->assertEquals(quiz_number_of_pages('1,2,0'), 1);
-        $this->assertEquals(quiz_number_of_pages('1,0,2,0'), 2);
-        $this->assertEquals(quiz_number_of_pages('1,2,3,0'), 1);
-        $this->assertEquals(quiz_number_of_pages('1,2,3,0'), 1);
-        $this->assertEquals(quiz_number_of_pages('0,1,0,0,2,0'), 4);
-    }
-
     public function test_quiz_rescale_grade() {
         $quiz = new stdClass();
         $quiz->decimalpoints = 2;

@@ -402,16 +402,6 @@ function quiz_has_attempts($quizid) {
 // Functions to do with quiz layout and pages //////////////////////////////////
 
 /**
- * Returns the number of pages in a quiz layout
- *
- * @param string $layout The string representing the quiz layout. Always ends in ,0
- * @return int The number of pages in the quiz.
- */
-function quiz_number_of_pages($layout) {
-    return substr_count(',' . $layout, ',0');
-}
-
-/**
  * Repaginate the questions in a quiz
  * @param int $quizid the id of the quiz to repaginate.
  * @param int $slotsperpage number of items to put on each page. 0 means unlimited.

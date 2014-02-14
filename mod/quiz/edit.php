@@ -176,15 +176,13 @@ if ($scrollpos) {
     $afteractionurl->param('scrollpos', $scrollpos);
 }
 if (($up = optional_param('up', false, PARAM_INT)) && confirm_sesskey()) {
-    $quiz->questions = quiz_move_question_up($quiz->questions, $up);
-    $DB->set_field('quiz', 'questions', $quiz->questions, array('id' => $quiz->id));
+    quiz_move_question_up($quiz, $up);
     quiz_delete_previews($quiz);
     redirect($afteractionurl);
 }
 
 if (($down = optional_param('down', false, PARAM_INT)) && confirm_sesskey()) {
-    $quiz->questions = quiz_move_question_down($quiz->questions, $down);
-    $DB->set_field('quiz', 'questions', $quiz->questions, array('id' => $quiz->id));
+    quiz_move_question_down($quiz, $down);
     quiz_delete_previews($quiz);
     redirect($afteractionurl);
 }
@@ -238,40 +236,34 @@ if ((optional_param('addrandom', false, PARAM_BOOL)) && confirm_sesskey()) {
 
 if (optional_param('addnewpagesafterselected', null, PARAM_CLEAN) &&
         !empty($selectedquestionids) && confirm_sesskey()) {
-    foreach ($selectedquestionids as $questionid) {
-        $quiz->questions = quiz_add_page_break_after($quiz->questions, $questionid);
+    foreach ($selectedquestionids as $slot) {
+        quiz_add_page_break_after_slot($quiz, $slot);
     }
-    $DB->set_field('quiz', 'questions', $quiz->questions, array('id' => $quiz->id));
     quiz_delete_previews($quiz);
     redirect($afteractionurl);
 }
 
 $addpage = optional_param('addpage', false, PARAM_INT);
 if ($addpage !== false && confirm_sesskey()) {
-    $quiz->questions = quiz_add_page_break_at($quiz->questions, $addpage);
-    $DB->set_field('quiz', 'questions', $quiz->questions, array('id' => $quiz->id));
+    quiz_add_page_break_after_slot($quiz, $addpage);
     quiz_delete_previews($quiz);
     redirect($afteractionurl);
 }
 
 $deleteemptypage = optional_param('deleteemptypage', false, PARAM_INT);
 if (($deleteemptypage !== false) && confirm_sesskey()) {
-    $quiz->questions = quiz_delete_empty_page($quiz->questions, $deleteemptypage);
-    $DB->set_field('quiz', 'questions', $quiz->questions, array('id' => $quiz->id));
+    quiz_delete_empty_page($quiz, $deleteemptypage);
     quiz_delete_previews($quiz);
     redirect($afteractionurl);
 }
 
 $remove = optional_param('remove', false, PARAM_INT);
-if ($remove && confirm_sesskey()) {
+if ($remove && confirm_sesskey() && quiz_has_question_use($quiz, $remove)) {
     // Remove a question from the quiz.
     // We require the user to have the 'use' capability on the question,
     // so that then can add it back if they remove the wrong one by mistake,
     // but, if the question is missing, it can always be removed.
-    if ($DB->record_exists('question', array('id' => $remove))) {
-        quiz_require_question_use($remove);
-    }
-    quiz_remove_question($quiz, $remove);
+    quiz_remove_slot($quiz, $remove);
     quiz_delete_previews($quiz);
     quiz_update_sumgrades($quiz);
     redirect($afteractionurl);
@@ -279,9 +271,9 @@ if ($remove && confirm_sesskey()) {
 
 if (optional_param('quizdeleteselected', false, PARAM_BOOL) &&
         !empty($selectedquestionids) && confirm_sesskey()) {
-    foreach ($selectedquestionids as $questionid) {
-        if (quiz_has_question_use($questionid)) {
-            quiz_remove_question($quiz, $questionid);
+    foreach ($selectedquestionids as $slot) {
+        if (quiz_has_question_use($quiz, $slot)) {
+            quiz_remove_slot($quiz, $slot);
         }
     }
     quiz_delete_previews($quiz);
@@ -410,7 +402,11 @@ echo $OUTPUT->header();
 $quizeditconfig = new stdClass();
 $quizeditconfig->url = $thispageurl->out(true, array('qbanktool' => '0'));
 $quizeditconfig->dialoglisteners = array();
-$numberoflisteners = max(quiz_number_of_pages($quiz->questions), 1);
+$numberoflisteners = $DB->get_field_sql("
+    SELECT COALESCE(MAX(page), 1)
+      FROM {quiz_slots}
+     WHERE quizid = ?", array($quiz->id));
+
 for ($pageiter = 1; $pageiter <= $numberoflisteners; $pageiter++) {
     $quizeditconfig->dialoglisteners[] = 'addrandomdialoglaunch_' . $pageiter;
 }
