@@ -38,6 +38,7 @@ require_once($CFG->dirroot . '/mod/quiz/locallib.php');
  * @copyright  2013 The Open University
  * @author     Jamie Pratt <me@jamiep.org>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @group      mod_quiz
  */
 class mod_quiz_attempt_walkthrough_testcase extends advanced_testcase {
 
@@ -79,6 +80,7 @@ class mod_quiz_attempt_walkthrough_testcase extends advanced_testcase {
         $attempt = quiz_create_attempt($quizobj, 1, false, $timenow, false, $user1->id);
 
         quiz_start_new_attempt($quizobj, $quba, $attempt, 1, $timenow);
+        $this->assertEquals('1,2,0', $attempt->layout);
 
         quiz_attempt_save_started($quizobj, $quba, $attempt);
 
@@ -132,7 +134,7 @@ class mod_quiz_attempt_walkthrough_testcase extends advanced_testcase {
         // Make a quiz.
         $quizgenerator = $this->getDataGenerator()->get_plugin_generator('mod_quiz');
 
-        $quiz = $quizgenerator->create_instance(array('course'=>$SITE->id, 'questionsperpage' => 0, 'grade' => 100.0,
+        $quiz = $quizgenerator->create_instance(array('course'=>$SITE->id, 'questionsperpage' => 2, 'grade' => 100.0,
                                                       'sumgrades' => 4));
 
         $questiongenerator = $this->getDataGenerator()->get_plugin_generator('core_question');
@@ -174,6 +176,7 @@ class mod_quiz_attempt_walkthrough_testcase extends advanced_testcase {
             $attempt = quiz_create_attempt($quizobj, 1, false, $timenow);
 
             quiz_start_new_attempt($quizobj, $quba, $attempt, 1, $timenow, array(1 => $randomqidtoselect));
+            $this->assertEquals('1,2,0,3,4,0', $attempt->layout);
 
             quiz_attempt_save_started($quizobj, $quba, $attempt);
 
@@ -266,8 +269,10 @@ class mod_quiz_attempt_walkthrough_testcase extends advanced_testcase {
 
         $timenow = time();
         $attempt = quiz_create_attempt($quizobj, 1, false, $timenow);
+
         // Select variant.
         quiz_start_new_attempt($quizobj, $quba, $attempt, 1, $timenow, array(), array(1 => $variantno));
+        $this->assertEquals('1,0', $attempt->layout);
         quiz_attempt_save_started($quizobj, $quba, $attempt);
 
         // Process some responses from the student.

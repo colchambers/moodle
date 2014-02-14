@@ -162,9 +162,8 @@ function quiz_start_new_attempt($quizobj, $quba, $attempt, $attemptnumber, $time
     $quizobj->load_questions();
 
     // Add them all to the $quba.
-    $idstoslots = array();
     $questionsinuse = array_keys($quizobj->get_questions());
-    foreach ($quizobj->get_questions() as $i => $questiondata) {
+    foreach ($quizobj->get_questions() as $questiondata) {
         if ($questiondata->qtype != 'random') {
             if (!$quizobj->get_quiz()->shuffleanswers) {
                 $questiondata->options->shuffleanswers = false;
@@ -186,7 +185,7 @@ function quiz_start_new_attempt($quizobj, $quba, $attempt, $attemptnumber, $time
             }
         }
 
-        $idstoslots[$i] = $quba->add_question($question, $questiondata->maxmark);
+        $quba->add_question($question, $questiondata->maxmark);
         $questionsinuse[] = $question->id;
     }
 
@@ -208,16 +207,36 @@ function quiz_start_new_attempt($quizobj, $quba, $attempt, $attemptnumber, $time
 
     $quba->start_all_questions($variantstrategy, $timenow);
 
-    // Update attempt layout.
-    $newlayout = array();
-    foreach (explode(',', $attempt->layout) as $qid) {
-        if ($qid != 0) {
-            $newlayout[] = $idstoslots[$qid];
-        } else {
-            $newlayout[] = 0;
+    // Work out the attempt layout.
+    $layout = array();
+    if ($quizobj->get_quiz()->shufflequestions) {
+        $slots = $quba->get_slots();
+        shuffle($slots);
+
+        $questionsonthispage = 0;
+        foreach ($slots as $slot) {
+            if ($questionsonthispage && $questionsonthispage == $quizobj->get_quiz()->questionsperpage) {
+                $layout[] = 0;
+                $questionsonthispage = 0;
+            }
+            $layout[] = $slot;
+            $questionsonthispage += 1;
+        }
+
+    } else {
+        $currentpage = null;
+        foreach ($quizobj->get_questions() as $slot) {
+            if ($currentpage !== null && $slot->page != $currentpage) {
+                $layout[] = 0;
+            }
+            $layout[] = $slot->slot;
+            $currentpage = $slot->page;
         }
     }
-    $attempt->layout = implode(',', $newlayout);
+
+    $layout[] = 0;
+    $attempt->layout = implode(',', $layout);
+
     return $attempt;
 }
 

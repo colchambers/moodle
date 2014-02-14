@@ -35,6 +35,7 @@ require_once($CFG->dirroot . '/mod/quiz/locallib.php');
  *
  * @copyright  2008 Tim Hunt
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @group      mod_quiz
  */
 class mod_quiz_locallib_testcase extends basic_testcase {
 

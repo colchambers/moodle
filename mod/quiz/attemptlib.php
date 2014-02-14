@@ -126,9 +126,9 @@ class quiz {
      */
     public function preload_questions() {
         $this->questions = question_preload_questions(null,
-                'slot.maxmark, slot.id AS slotid',
+                'slot.maxmark, slot.id AS slotid, slot.slot, slot.page',
                 '{quiz_slots} slot ON slot.quizid = :quizid AND q.id = slot.questionid',
-                array('quizid' => $this->quiz->id));
+                array('quizid' => $this->quiz->id), 'slot.slot');
     }
 
     /**
@@ -138,6 +138,9 @@ class quiz {
      * @param array $questionids question ids of the questions to load. null for all.
      */
     public function load_questions($questionids = null) {
+        if ($this->questions === null) {
+            throw new coding_exception('You must call preload_questions before calling load_questions.');
+        }
         if (is_null($questionids)) {
             $questionids = array_keys($this->questions);
         }

@@ -729,7 +729,7 @@ function question_preview_popup_params() {
  * on them before they can be properly used.
  */
 function question_preload_questions($questionids = null, $extrafields = '', $join = '',
-        $extraparams = array()) {
+        $extraparams = array(), $orderby = '') {
     global $DB;
 
     if ($questionids === null) {
@@ -753,11 +753,16 @@ function question_preload_questions($questionids = null, $extrafields = '', $joi
         $extrafields = ', ' . $extrafields;
     }
 
+    if ($orderby) {
+        $orderby = 'ORDER BY ' . $orderby;
+    }
+
     $sql = "SELECT q.*, qc.contextid{$extrafields}
               FROM {question} q
               JOIN {question_categories} qc ON q.category = qc.id
               {$join}
-             {$where}";
+             {$where}
+          {$orderby}";
 
     // Load the questions
     $questions = $DB->get_records_sql($sql, $extraparams + $params);

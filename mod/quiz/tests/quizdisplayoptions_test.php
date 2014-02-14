@@ -35,6 +35,7 @@ require_once($CFG->dirroot . '/mod/quiz/locallib.php');
  *
  * @copyright  2010 The Open University
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @group      mod_quiz
  */
 class mod_quiz_display_options_testcase extends basic_testcase {
     public function test_num_attempts_access_rule() {

@@ -33,6 +33,7 @@ defined('MOODLE_INTERNAL') || die();
  * @category   phpunit
  * @copyright  2012 Matt Petro
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @group      mod_quiz
  */
 class mod_quiz_generator_testcase extends advanced_testcase {
     public function test_generator() {

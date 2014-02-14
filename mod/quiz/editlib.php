@@ -112,7 +112,7 @@ function quiz_delete_empty_page($layout, $index) {
  *      add at the end
  * @return bool false if the question was already in the quiz
  */
-function quiz_add_quiz_question($id, $quiz, $page = 0) {
+function quiz_add_quiz_question($id, $quiz, $page = 0, $maxmark = null) {
     global $DB;
     $slots = $DB->get_records('quiz_slots', array('quizid' => $quiz->id),
             'slot', 'questionid, slot, page');
@@ -135,7 +135,12 @@ function quiz_add_quiz_question($id, $quiz, $page = 0) {
     $slot = new stdClass();
     $slot->quizid = $quiz->id;
     $slot->questionid = $id;
-    $slot->maxmark = $DB->get_field('question', 'defaultmark', array('id' => $id));
+
+    if ($maxmark !== null) {
+        $slot->maxmark = $maxmark;
+    } else {
+        $slot->maxmark = $DB->get_field('question', 'defaultmark', array('id' => $id));
+    }
 
     if (is_int($page) && $page >= 1) {
         // Adding on a given page.
@@ -152,8 +157,12 @@ function quiz_add_quiz_question($id, $quiz, $page = 0) {
 
     } else {
         $lastslot = end($slots);
-        $slot->slot = $lastslot->slot + 1;
-        if ($numonlastpage >= $quiz->questionsperpage) {
+        if ($lastslot) {
+            $slot->slot = $lastslot->slot + 1;
+        } else {
+            $slot->slot = 1;
+        }
+        if ($quiz->questionsperpage && $numonlastpage >= $quiz->questionsperpage) {
             $slot->page = $maxpage + 1;
         } else {
             $slot->page = $maxpage;

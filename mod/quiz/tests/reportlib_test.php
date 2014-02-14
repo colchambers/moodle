@@ -35,6 +35,7 @@ require_once($CFG->dirroot . '/mod/quiz/report/reportlib.php');
  *
  * @copyright 2008 Jamie Pratt me@jamiep.org
  * @license   http://www.gnu.org/copyleft/gpl.html GNU Public License
+ * @group      mod_quiz
  */
 class mod_quiz_reportlib_testcase extends basic_testcase {
     public function test_quiz_report_index_by_keys() {

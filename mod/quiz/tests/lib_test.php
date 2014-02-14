@@ -33,6 +33,7 @@ require_once($CFG->dirroot . '/mod/quiz/lib.php');
 /**
  * @copyright  2008 The Open University
  * @license    http://www.gnu.org/copyleft/gpl.html GNU Public License
+ * @group      mod_quiz
  */
 class mod_quiz_lib_testcase extends basic_testcase {
     public function test_quiz_has_grades() {
