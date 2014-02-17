@@ -254,32 +254,26 @@ function quiz_add_page_break_after_slot($quiz, $slot) {
 }
 
 /**
- * Save changes to question instance
+ * Change the max mark for a slot.
  *
- * Saves changes to the question grades in the quiz_slots table.
+ * Saves changes to the question grades in the quiz_slots table and any
+ * corresponding question_attempts.
  * It does not update 'sumgrades' in the quiz table.
  *
- * @param float    $maxmark    the maximal grade for the question.
- * @param int      $questionid the question id.
- * @param stdClass $quiz       the quiz settings.
+ * @param stdClass $slot    row from the quiz_slots table.
+ * @param float    $maxmark the new maxmark.
  */
-function quiz_update_question_instance($maxmark, $questionid, $quiz) {
+function quiz_update_slot_maxmark($slot, $maxmark) {
     global $DB;
-    $slot = $DB->get_record('quiz_slots', array('quizid' => $quiz->id,
-            'questionid' => $questionid));
 
-    if (!$slot) {
-        throw new coding_exception('Attempt to change the max mark of quesion not in the quiz.');
-    }
-
-    if (abs($maxmark - $instance->maxmark) < 1e-7) {
+    if (abs($maxmark - $slot->maxmark) < 1e-7) {
         // Grade has not changed. Nothing to do.
         return;
     }
 
     $slot->maxmark = $maxmark;
     $DB->update_record('quiz_slots', $slot);
-    question_engine::set_max_mark_in_attempts(new qubaids_for_quiz($quiz->id),
+    question_engine::set_max_mark_in_attempts(new qubaids_for_quiz($slot->quizid),
             $slot->slot, $maxmark);
 }
 
@@ -604,13 +598,13 @@ function quiz_print_question_list($quiz, $pageurl, $allowdelete, $reordertool,
 <div class="points">
 <form method="post" action="edit.php" class="quizsavegradesform"><div>
     <fieldset class="invisiblefieldset" style="display: block;">
-    <label for="<?php echo "inputq$question->id" ?>"><?php echo $strmaxmark; ?></label>:<br />
+    <label for="<?php echo 'inputq' . $question->slot; ?>"><?php echo $strmaxmark; ?></label>:<br />
     <input type="hidden" name="sesskey" value="<?php echo sesskey() ?>" />
     <?php echo html_writer::input_hidden_params($pageurl); ?>
     <input type="hidden" name="savechanges" value="save" />
                     <?php
-                    echo '<input type="text" name="g' . $question->id .
-                            '" id="inputq' . $question->id .
+                    echo '<input type="text" name="g' . $question->slot .
+                            '" id="inputq' . $question->slot .
                             '" size="' . ($quiz->decimalpoints + 2) .
                             '" value="' . (0 + $question->maxmark) .
                             '" tabindex="' . ($lastindex + $qno) . '" />';

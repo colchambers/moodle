@@ -407,7 +407,26 @@ function quiz_has_attempts($quizid) {
  * @param int $slotsperpage number of items to put on each page. 0 means unlimited.
  */
 function quiz_repaginate_questions($quizid, $slotsperpage) {
-    // TODO.
+    global $DB;
+    $trans = $DB->start_delegated_transaction();
+
+    $slots = $DB->get_records('quiz_slots', array('quizid' => $quizid),
+            'slot');
+
+    $currentpage = 1;
+    $slotsonthispage = 0;
+    foreach ($slots as $slot) {
+        if ($slotsonthispage && $slotsonthispage == $slotsperpage) {
+            $currentpage += 1;
+            $slotsonthispage = 0;
+        }
+        if ($slot->page != $currentpage) {
+            $DB->set_field('quiz_slots', 'page', $currentpage, array('id' => $slot->id));
+        }
+        $slotsonthispage += 1;
+    }
+
+    $trans->allow_commit();
 }
 
 // Functions to do with quiz grades ////////////////////////////////////////////
