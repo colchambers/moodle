@@ -3014,6 +3014,89 @@ class core_dml_testcase extends database_driver_testcase {
         }
     }
 
+    public function test_decompose_reorder_into_safe_renames_identity() {
+        $DB = $this->tdb;
+        $this->assertEquals(array(), $DB->decompose_reorder_into_safe_renames(
+                array(1 => 1, 2 => 2), -1));
+    }
+
+    public function test_decompose_reorder_into_safe_renames_no_overlap() {
+        $DB = $this->tdb;
+        $this->assertEquals(array(1 => 3, 2 => 4), $DB->decompose_reorder_into_safe_renames(
+                array(1 => 3, 2 => 4), -1));
+    }
+
+    public function test_decompose_reorder_into_safe_renames_shift() {
+        $DB = $this->tdb;
+        $this->assertSame(array(3 => 4, 2 => 3, 1 => 2), $DB->decompose_reorder_into_safe_renames(
+                array(1 => 2, 2 => 3, 3 => 4), -1));
+    }
+
+    public function test_decompose_decompose_reorder_into_safe_renames_simple_swap() {
+        $DB = $this->tdb;
+        $this->assertEquals(array(1 => -1, 2 => 1, -1 => 2), $DB->decompose_reorder_into_safe_renames(
+                array(1 => 2, 2 => 1), -1));
+    }
+
+    public function test_decompose_reorder_into_safe_renames_cycle() {
+        $DB = $this->tdb;
+        $this->assertEquals(array(1 => -2, 3 => 1, 2 => 3, -2 => 2),
+                $DB->decompose_reorder_into_safe_renames(
+                array(1 => 2, 2 => 3 , 3 => 1), -2));
+    }
+
+    public function test_decompose_reorder_into_safe_renames_complex() {
+        $DB = $this->tdb;
+        $this->assertEquals(array(9 => 10, 8 => 9, 1 => -1, 5 => 1, 7 => 5, -1 => 7,
+                4 => -1, 6 => 4, -1 => 6), $DB->decompose_reorder_into_safe_renames(
+                array(1 => 7, 2 => 2, 3 => 3, 4 => 6, 5 => 1, 6 => 4, 7 => 5, 8 => 9, 9 => 10), -1));
+    }
+
+    public function test_decompose_reorder_into_safe_renames_unused_value_id_used() {
+        $DB = $this->tdb;
+        try {
+            $DB->decompose_reorder_into_safe_renames(array(1 => 1), 1);
+            $this->fail('Expected exception was not thrown');
+        } catch (coding_exception $e) {
+            $this->assertEquals('Supposedly unused value 1 is acutally used!', $e->a);
+        }
+    }
+
+    public function test_reorder_rows() {
+        $DB = $this->tdb;
+        $dbman = $DB->get_manager();
+
+        $table = $this->get_test_table();
+        $tablename = $table->getName();
+
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('otherid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('sortorder', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('otherdata', XMLDB_TYPE_TEXT, 'big', null, null, null);
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+        $table->add_key('unique', XMLDB_KEY_UNIQUE, array('otherid', 'sortorder'));
+        $dbman->create_table($table);
+
+        $DB->insert_record($tablename, array('otherid' => 2, 'sortorder' => 1, 'otherdata' => 'To become 4'));
+        $DB->insert_record($tablename, array('otherid' => 2, 'sortorder' => 2, 'otherdata' => 'To become 1'));
+        $DB->insert_record($tablename, array('otherid' => 1, 'sortorder' => 1, 'otherdata' => 'Other 1'));
+        $DB->insert_record($tablename, array('otherid' => 1, 'sortorder' => 2, 'otherdata' => 'Other 2'));
+        $DB->insert_record($tablename, array('otherid' => 2, 'sortorder' => 3, 'otherdata' => 'To stay at 3'));
+        $DB->insert_record($tablename, array('otherid' => 2, 'sortorder' => 4, 'otherdata' => 'To become 2'));
+
+        $DB->reorder_rows($tablename, 'sortorder', array(1 => 4, 2 => 1, 3 => 3, 4 => 2), array('otherid' => 2));
+        $this->assertEquals(array(
+                3 => (object) array('id' => 3, 'otherid' => 1, 'sortorder' => 1, 'otherdata' => 'Other 1'),
+                4 => (object) array('id' => 4, 'otherid' => 1, 'sortorder' => 2, 'otherdata' => 'Other 2'),
+            ), $DB->get_records($tablename, array('otherid' => 1), 'sortorder'));
+        $this->assertEquals(array(
+                2 => (object) array('id' => 2, 'otherid' => 2, 'sortorder' => 1, 'otherdata' => 'To become 1'),
+                6 => (object) array('id' => 6, 'otherid' => 2, 'sortorder' => 2, 'otherdata' => 'To become 2'),
+                5 => (object) array('id' => 5, 'otherid' => 2, 'sortorder' => 3, 'otherdata' => 'To stay at 3'),
+                1 => (object) array('id' => 1, 'otherid' => 2, 'sortorder' => 4, 'otherdata' => 'To become 4'),
+            ), $DB->get_records($tablename, array('otherid' => 2), 'sortorder'));
+    }
+
     public function test_count_records() {
         $DB = $this->tdb;
 
