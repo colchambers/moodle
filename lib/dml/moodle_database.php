@@ -1711,6 +1711,116 @@ abstract class moodle_database {
      */
     public abstract function set_field_select($table, $newfield, $newvalue, $select, array $params=null);
 
+    /**
+     * This method can re-order database rows without violating a unique index.
+     *
+     * Suppose we have a table with a unique index on (otherid, sortorder), and
+     * for a particular value of otherid, we want to change all the sort orders.
+     * You have to do this carefully or you will violate the unique index at some point.
+     * This method takes care of the details for you.
+     *
+     * This method should probably only be called from inside a transaction, but
+     * we leave this the responsibility of the caller.
+     *
+     * @param string $table The database table to modify.
+     * @param string $ordercol the field that contains the sortorder values we are going to change.
+     * @param array $reorder how to change the $ordercol values. E.g. [1 => 4, 2 => 1, 3 => 3, 4 => 2].
+     * @param array $otherconditions array fieldname => requestedvalue extra WHERE clause conditions
+     *      to restrict which rows are affected. E.g. array('otherid' => 123).
+     * @param int $unusedvalue (defaults to -1) a value that is never used in $ordercol.
+     */
+    public function reorder_rows($table, $ordercol, array $reorder,
+            array $otherconditions, $unusedvalue = -1) {
+        $saferenames = $this->decompose_reorder_into_safe_renames($reorder, $unusedvalue);
+
+        foreach ($saferenames as $from => $to) {
+            $otherconditions[$ordercol] = $from;
+            $this->set_field($table, $ordercol, $to, $otherconditions);
+        }
+    }
+
+    /**
+     * Helper used by reorder_rows. Given a desired re-ordering, break it down
+     * into single renames that can be done one at a time without breaking any
+     * unique index constraints.
+     *
+     * Suppose the input is array(1 => 2, 2 => 1) and -1. Then the output will be
+     * array (1 => -1, 2 => 1, -1 => 2). The unit tests give more examples.
+     *
+     * This function solves this problem in the general case.
+     *
+     * (This method is only public so it can be unit tested easily.)
+     *
+     * @param array $reorder The desired re-ordering.
+     *      E.g. [1 => 4, 2 => 1, 3 => 3, 4 => 2].
+     * @param int $unusedvalue A value that is not currently used.
+     * @return array A safe way to perform the re-order.
+     *      E.g. [1 => -1, 2 => 1, 4 => 2, -1 => 4].
+     */
+    public function decompose_reorder_into_safe_renames(array $reorder, $unusedvalue) {
+        $nontrivialmap = array();
+        foreach ($reorder as $from => $to) {
+            if ($from == $unusedvalue || $to == $unusedvalue) {
+                throw new coding_exception('Supposedly unused value ' . $unusedvalue . ' is acutally used!');
+            }
+            if ($from != $to) {
+                $nontrivialmap[$from] = $to;
+            }
+        }
+
+        if (empty($nontrivialmap)) {
+            return array();
+        }
+
+        // First we deal with all renames that are not part of cycles.
+        // This bit is O(n^2) and it ought to be possible to do better,
+        // but it does not seem worth the effort.
+        $saferenames = array();
+        $todocount = count($nontrivialmap) + 1;
+        while (count($nontrivialmap) < $todocount) {
+            $todocount = count($nontrivialmap);
+
+            foreach ($nontrivialmap as $from => $to) {
+                if (array_key_exists($to, $nontrivialmap)) {
+                    continue; // Cannot currenly do this rename.
+                }
+                // Is safe to do this rename now.
+                $saferenames[$from] = $to;
+                unset($nontrivialmap[$from]);
+            }
+        }
+
+        // Are we done?
+        if (empty($nontrivialmap)) {
+            return $saferenames;
+        }
+
+        // Now, what is left in $nontrivialmap will permutation, which must be a
+        // combination of distinct cycles. We need to break them.
+        while (!empty($nontrivialmap)) {
+            // Extract the first cycle.
+            reset($nontrivialmap);
+            $current = $cyclestart = key($nontrivialmap);
+            $cycle = array();
+            do {
+                $cycle[] = $current;
+                $next = $nontrivialmap[$current];
+                unset($nontrivialmap[$current]);
+                $current = $next;
+            } while ($current !== $cyclestart);
+
+            // Now convert it to a sequence of safe renames by using a temp.
+            $saferenames[$cyclestart] = $unusedvalue;
+            $cycle[0] = $unusedvalue;
+            $to = $cyclestart;
+            while ($from = array_pop($cycle)) {
+                $saferenames[$from] = $to;
+                $to = $from;
+            }
+        }
+
+        return $saferenames;
+    }
 
     /**
      * Count the records in a table where all the given conditions met.
