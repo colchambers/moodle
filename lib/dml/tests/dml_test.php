@@ -3022,33 +3022,34 @@ class core_dml_testcase extends database_driver_testcase {
 
     public function test_decompose_reorder_into_safe_renames_no_overlap() {
         $DB = $this->tdb;
-        $this->assertEquals(array(1 => 3, 2 => 4), $DB->decompose_reorder_into_safe_renames(
+        $this->assertEquals(array(array(1, 3), array(2, 4)), $DB->decompose_reorder_into_safe_renames(
                 array(1 => 3, 2 => 4), -1));
     }
 
     public function test_decompose_reorder_into_safe_renames_shift() {
         $DB = $this->tdb;
-        $this->assertSame(array(3 => 4, 2 => 3, 1 => 2), $DB->decompose_reorder_into_safe_renames(
+        $this->assertSame(array(array(3, 4), array(2, 3), array(1, 2)), $DB->decompose_reorder_into_safe_renames(
                 array(1 => 2, 2 => 3, 3 => 4), -1));
     }
 
     public function test_decompose_decompose_reorder_into_safe_renames_simple_swap() {
         $DB = $this->tdb;
-        $this->assertEquals(array(1 => -1, 2 => 1, -1 => 2), $DB->decompose_reorder_into_safe_renames(
+        $this->assertEquals(array(array(1, -1), array(2, 1), array(-1, 2)), $DB->decompose_reorder_into_safe_renames(
                 array(1 => 2, 2 => 1), -1));
     }
 
     public function test_decompose_reorder_into_safe_renames_cycle() {
         $DB = $this->tdb;
-        $this->assertEquals(array(1 => -2, 3 => 1, 2 => 3, -2 => 2),
+        $this->assertEquals(array(array(1, -2), array(3, 1), array(2, 3), array(-2, 2)),
                 $DB->decompose_reorder_into_safe_renames(
                 array(1 => 2, 2 => 3 , 3 => 1), -2));
     }
 
     public function test_decompose_reorder_into_safe_renames_complex() {
         $DB = $this->tdb;
-        $this->assertEquals(array(9 => 10, 8 => 9, 1 => -1, 5 => 1, 7 => 5, -1 => 7,
-                4 => -1, 6 => 4, -1 => 6), $DB->decompose_reorder_into_safe_renames(
+        $this->assertEquals(array(array(9, 10), array(8, 9),
+                array(1, -1), array(5, 1), array(7, 5), array(-1, 7),
+                array(4, -1), array(6, 4), array(-1, 6)), $DB->decompose_reorder_into_safe_renames(
                 array(1 => 7, 2 => 2, 3 => 3, 4 => 6, 5 => 1, 6 => 4, 7 => 5, 8 => 9, 9 => 10), -1));
     }
 

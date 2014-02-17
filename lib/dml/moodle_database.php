@@ -1733,7 +1733,8 @@ abstract class moodle_database {
             array $otherconditions, $unusedvalue = -1) {
         $saferenames = $this->decompose_reorder_into_safe_renames($reorder, $unusedvalue);
 
-        foreach ($saferenames as $from => $to) {
+        foreach ($saferenames as $rename) {
+            list($from, $to) = $rename;
             $otherconditions[$ordercol] = $from;
             $this->set_field($table, $ordercol, $to, $otherconditions);
         }
@@ -1745,7 +1746,7 @@ abstract class moodle_database {
      * unique index constraints.
      *
      * Suppose the input is array(1 => 2, 2 => 1) and -1. Then the output will be
-     * array (1 => -1, 2 => 1, -1 => 2). The unit tests give more examples.
+     * array (array(1, -1), array(2, 1), array(-1, 2)). The unit tests give more examples.
      *
      * This function solves this problem in the general case.
      *
@@ -1754,8 +1755,9 @@ abstract class moodle_database {
      * @param array $reorder The desired re-ordering.
      *      E.g. [1 => 4, 2 => 1, 3 => 3, 4 => 2].
      * @param int $unusedvalue A value that is not currently used.
-     * @return array A safe way to perform the re-order.
-     *      E.g. [1 => -1, 2 => 1, 4 => 2, -1 => 4].
+     * @return array A safe way to perform the re-order. As array of two-element
+     *      arrays array($from, $to).
+     *      E.g. [array(1, -1), array(2, 1), array(4, 2), array(-1, 4)].
      */
     public function decompose_reorder_into_safe_renames(array $reorder, $unusedvalue) {
         $nontrivialmap = array();
@@ -1785,7 +1787,7 @@ abstract class moodle_database {
                     continue; // Cannot currenly do this rename.
                 }
                 // Is safe to do this rename now.
-                $saferenames[$from] = $to;
+                $saferenames[] = array($from, $to);
                 unset($nontrivialmap[$from]);
             }
         }
@@ -1810,11 +1812,11 @@ abstract class moodle_database {
             } while ($current !== $cyclestart);
 
             // Now convert it to a sequence of safe renames by using a temp.
-            $saferenames[$cyclestart] = $unusedvalue;
+            $saferenames[] = array($cyclestart, $unusedvalue);
             $cycle[0] = $unusedvalue;
             $to = $cyclestart;
             while ($from = array_pop($cycle)) {
-                $saferenames[$from] = $to;
+                $saferenames[] = array($from, $to);
                 $to = $from;
             }
         }
