@@ -454,7 +454,7 @@ YUI.add('moodle-mod_quiz-toolboxes', function(Y) {
                 var editform = Y.Node.create('<form action="#" />');
                 var editinstructions = Y.Node.create('<span class="'+CSS.EDITINSTRUCTIONS+'" id="id_editinstructions" />')
                     .set('innerHTML', M.util.get_string('edittitleinstructions', 'moodle'));
-                var editor = Y.Node.create('<input name="title" type="text" class="'+CSS.TITLEEDITOR+'" />').setAttrs({
+                var editor = Y.Node.create('<input name="maxmark" type="text" class="'+CSS.TITLEEDITOR+'" />').setAttrs({
                     'value' : maxmarktext,
                     'autocomplete' : 'off',
                     'aria-describedby' : 'id_editinstructions',
@@ -511,7 +511,7 @@ YUI.add('moodle-mod_quiz-toolboxes', function(Y) {
                 var data = {
                     'class'   : 'resource',
                     'field'   : 'updatemaxmark',
-                    'title'   : newmaxmark,
+                    'maxmark'   : newmaxmark,
                     'id'      : Y.Moodle.core_course.util.cm.getId(activity)
                 };
                 this.send_request(data, spinner, function(response) {

@@ -45,7 +45,7 @@ $summary    = optional_param('summary', '', PARAM_RAW);
 $sequence   = optional_param('sequence', '', PARAM_SEQUENCE);
 $visible    = optional_param('visible', 0, PARAM_INT);
 $pageaction = optional_param('action', '', PARAM_ALPHA); // Used to simulate a DELETE command
-$title      = optional_param('title', '', PARAM_FLOAT);
+$maxmark      = optional_param('maxmark', '', PARAM_FLOAT);
 
 global $Out;
 $PAGE->set_url('/mod/quiz/rest.php', array('courseId'=>$courseid,'quizId'=>$quizid,'class'=>$class));
@@ -108,7 +108,7 @@ switch($requestmethod) {
                         $slot = $DB->get_record('quiz_slots', array('id' => $id), '*', MUST_EXIST);
 
                         // Escape strings as they would be by mform
-                        $slot->maxmark = clean_param($title, PARAM_FLOAT);
+                        $slot->maxmark = clean_param($maxmark, PARAM_FLOAT);
 
 //                         if (!empty($slot->maxmark)) {
                             $DB->update_record('quiz_slots', $slot);
