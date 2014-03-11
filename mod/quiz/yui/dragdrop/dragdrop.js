@@ -13,6 +13,7 @@ YUI.add('moodle-mod_quiz-dragdrop', function(Y) {
         LIGHTBOX : 'lightbox',
         MOVEDOWN : 'movedown',
         MOVEUP : 'moveup',
+        PAGE : 'pagenumber',
         PAGECONTENT : 'page-content',
         RIGHT : 'right',
         SECTION : 'section',
@@ -281,7 +282,7 @@ YUI.add('moodle-mod_quiz-dragdrop', function(Y) {
             // Set group for parent class
             this.groups = ['resource'];
             this.samenodeclass = CSS.ACTIVITY;
-            this.parentnodeclass = CSS.SECTION;
+            this.parentnodeclass = CSS.PAGE;
             this.resourcedraghandle = this.get_drag_handle(M.str.moodle.move, CSS.EDITINGMOVE, CSS.ICONCLASS, true);
 
             // Go through all sections

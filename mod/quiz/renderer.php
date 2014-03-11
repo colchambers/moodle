@@ -1565,7 +1565,7 @@ class mod_quiz_renderer extends plugin_renderer_base {
         $pagenumber = $this->get_question_info($quiz, $question->id, 'page');
         $slotid = $this->get_question_info($quiz, $question->id, 'slotid');
         $page = $pagenumber ? get_string('page') . ' ' . $pagenumber : null;
-        $output .= html_writer::tag('span', $page, array('class' => 'pagenumber'));
+        $output .= html_writer::tag('li', $page, array('class' => 'pagenumber activity quiz modtype_quiz  yui3-dd-drop'));
         if ($questiontypehtml = $this->quiz_section_question($quiz, $course, $completioninfo, $question, $sectionreturn, $displayoptions)) {
             $questionclasses = 'activity ' . $question->qtype . 'qtype_' . $question->qtype;
             $output .= html_writer::tag('li', $questiontypehtml, array('class' => $questionclasses, 'id' => 'module-' . $slotid));
