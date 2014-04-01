@@ -21,7 +21,7 @@
         HIDE : 'hide',
         MODINDENTCOUNT : 'mod-indent-',
         MODINDENTHUGE : 'mod-indent-huge',
-        MODULEIDPREFIX : 'module-',
+        MODULEIDPREFIX : 'slot-',
         SECTIONHIDDENCLASS : 'hidden',
         SECTIONIDPREFIX : 'section-',
         SHOW : 'editing_show',
@@ -49,7 +49,8 @@
         MODINDENTDIV : '.mod-indent',
         MODINDENTOUTER : '.mod-indent-outer',
         PAGECONTENT : 'div#page-content',
-        SECTIONLI : 'li.section',
+        PAGELI : 'li.page',
+        SECTIONUL : 'ul.section',
         SHOW : 'a.'+CSS.SHOW,
         SHOWHIDE : 'a.editing_showhide'
     },

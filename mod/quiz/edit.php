@@ -451,7 +451,6 @@ echo '<div class="repaginatecommand"><button id="repaginatecommand" ' .
 echo '</div>';
 
 if ($USER->editing && !$repaginatingdisabledhtml) {
-
     require_once($CFG->dirroot . '/mod/quiz/classes/repaginate.php');
     $repaginate = new quiz_repaginate();
     echo $repaginate->get_popup_menu($quiz, $thispageurl, $repaginatingdisabledhtml);

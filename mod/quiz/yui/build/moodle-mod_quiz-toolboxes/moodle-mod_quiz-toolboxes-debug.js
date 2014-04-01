@@ -23,7 +23,7 @@ YUI.add('moodle-mod_quiz-toolboxes', function (Y, NAME) {
         HIDE : 'hide',
         MODINDENTCOUNT : 'mod-indent-',
         MODINDENTHUGE : 'mod-indent-huge',
-        MODULEIDPREFIX : 'module-',
+        MODULEIDPREFIX : 'slot-',
         SECTIONHIDDENCLASS : 'hidden',
         SECTIONIDPREFIX : 'section-',
         SHOW : 'editing_show',
@@ -51,7 +51,8 @@ YUI.add('moodle-mod_quiz-toolboxes', function (Y, NAME) {
         MODINDENTDIV : '.mod-indent',
         MODINDENTOUTER : '.mod-indent-outer',
         PAGECONTENT : 'div#page-content',
-        SECTIONLI : 'li.section',
+        PAGELI : 'li.page',
+        SECTIONUL : 'ul.section',
         SHOW : 'a.'+CSS.SHOW,
         SHOWHIDE : 'a.editing_showhide'
     },
@@ -300,6 +301,10 @@ Y.extend(RESOURCETOOLBOX, TOOLBOX, {
                 // The user is deleting the activity.
                 this.delete_with_confirmation(ev, node, activity, action);
                 break;
+            case 'joinpage':
+                // The user wishes to edit the maxmark of the resource.
+                this.join_page(ev, node, activity, action);
+                break;
             default:
                 // Nothing to do here!
                 break;
@@ -359,7 +364,7 @@ Y.extend(RESOURCETOOLBOX, TOOLBOX, {
             var data = {
                 'class': 'resource',
                 'action': 'DELETE',
-                'id': Y.Moodle.core_course.util.cm.getId(element)
+                'id': Y.Moodle.mod_quiz.util.slot.getId(element)
             };
             this.send_request(data);
             if (M.core.actionmenu && M.core.actionmenu.instance) {
@@ -385,7 +390,7 @@ Y.extend(RESOURCETOOLBOX, TOOLBOX, {
      */
     edit_maxmark : function(ev, button, activity) {
         // Get the element we're working on
-        var activityid = Y.Moodle.core_course.util.cm.getId(activity),
+        var activityid = Y.Moodle.mod_quiz.util.slot.getId(activity),
             instancemaxmark  = activity.one(SELECTOR.INSTANCEMAXMARK),
             instance = activity.one(SELECTOR.ACTIVITYINSTANCE),
             currentmaxmark = instancemaxmark.get('firstChild'),
@@ -474,7 +479,7 @@ Y.extend(RESOURCETOOLBOX, TOOLBOX, {
                 'class'   : 'resource',
                 'field'   : 'updatemaxmark',
                 'maxmark'   : newmaxmark,
-                'id'      : Y.Moodle.core_course.util.cm.getId(activity)
+                'id'      : Y.Moodle.mod_quiz.util.slot.getId(activity)
             };
             this.send_request(data, spinner, function(response) {
                 if (response.instancemaxmark) {
@@ -528,6 +533,93 @@ Y.extend(RESOURCETOOLBOX, TOOLBOX, {
       Y.later(100, this, function() {
           activity.one(SELECTOR.EDITMAXMARK).focus();
       });
+    },
+
+    /**
+     * Joins or separates the given slot with the page of the previous slot. Reorders the pages of 
+     * the other slots
+     *
+     * @protected
+     * @method join_page
+     * @param {EventFacade} ev The event that was fired.
+     * @param {Node} button The button that triggered this action.
+     * @param {Node} activity The activity node that this action will be performed on.
+     * @chainable
+     */
+    join_page: function(ev, button, activity) {
+        // Prevent the default button action
+        ev.preventDefault();
+
+        // Get the element we're working on
+        var element   = activity;
+
+        // If it is confirmed.
+
+        var spinner = this.add_spinner(activity);
+        // Actually remove the element.
+//            element.remove();
+        var slotnumber = 0;
+        
+//        Y.Moodle.mod_quiz.util.slot.getSlotNumber(element);
+        var data = {
+            'class': 'resource',
+            'field': 'linkslottopage',
+            'id':    slotnumber,
+            'value': 1
+        };
+        
+        slotnumber = activity.previous('li.activity').one('.slotnumber').get('text');
+        if (slotnumber) {
+            data.id = Number(slotnumber);
+        }
+        this.send_request(data, spinner, function(response) {
+            if (response.slots) {
+                this.repaginate_slots(response.slots);
+////                activity.one(SELECTOR.INSTANCEMAXMARK).setContent(response.instancemaxmark);
+            }
+        });
+//            this.send_request(data);
+//            if (M.core.actionmenu && M.core.actionmenu.instance) {
+//                M.core.actionmenu.instance.hideMenu();
+//            }
+
+
+        return this;
+    },
+    repaginate_slots: function(slots) {
+        console.log(slots);
+//        for(var x=0;i<slots.length;x++){
+        var slot;
+        var section = Y.one(SELECTOR.PAGECONTENT+' '+SELECTOR.SECTIONUL);
+//        var resources = section
+        for(var key in slots){
+            
+            if(!slots.hasOwnProperty(key)){
+                continue;
+            }
+            
+            console.log(key);
+            slot = slots[key];
+            console.log(slot);
+            
+        }
+        
+        var activities = section.all(SELECTOR.ACTIVITYLI);
+        activities.each(function(node) {
+//            var button;
+//            if (node.one(SELECTOR.SHOW)) {
+//                button = node.one(SELECTOR.SHOW);
+//            } else {
+//                button = node.one(SELECTOR.HIDE);
+//            }
+//            var activityid = Y.Moodle.mod_quiz.util.slot.getId(node);
+//
+//            // NOTE: resourcestotoggle is returned as a string instead
+//            // of a Number so we must cast our activityid to a String.
+//            if (Y.Array.indexOf(response.resourcestotoggle, "" + activityid) !== -1) {
+//                M.mod_quiz.resource_toolbox.handle_resource_dim(button, node, action);
+//            }
+        }, this);
     }
 },
 {
@@ -645,7 +737,7 @@ Y.extend(SECTIONTOOLBOX, TOOLBOX, {
                 } else {
                     button = node.one(SELECTOR.HIDE);
                 }
-                var activityid = Y.Moodle.core_course.util.cm.getId(node);
+                var activityid = Y.Moodle.mod_quiz.util.slot.getId(node);
 
                 // NOTE: resourcestotoggle is returned as a string instead
                 // of a Number so we must cast our activityid to a String.

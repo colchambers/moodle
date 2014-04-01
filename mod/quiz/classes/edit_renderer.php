@@ -499,9 +499,13 @@ class mod_quiz_edit_renderer extends plugin_renderer_base {
 
         if ($questiontypehtml = $this->quiz_section_question($quiz, $structure, $course, $completioninfo, $question, $sectionreturn, $pageurl)) {
             $questionclasses = 'activity ' . $question->qtype . 'qtype_' . $question->qtype;
-            $output .= html_writer::tag('li', $questiontypehtml, array('class' => $questionclasses, 'id' => 'module-' . $slotid));
+            $output .= html_writer::tag('li', $questiontypehtml, array('class' => $questionclasses, 'id' => 'slot-' . $slotid));
         }
 
+        if(true){
+            $joinhtml = quiz_question_page_join_button($quiz, $question);
+            $output .= html_writer::tag('li', $joinhtml, array('class' => $dragdropclass.' page_join'));
+        }
         return $output;
     }
 
