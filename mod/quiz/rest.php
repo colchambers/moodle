@@ -106,7 +106,13 @@ switch($requestmethod) {
                     case 'linkslottopage':
                         require_capability('mod/quiz:manage', $modcontext);
                         $slots = $structure->link_slot_to_page($quiz, $id, $value);
-                        echo json_encode(array('slots' => $slots));
+                        $slots_json = array();
+//                         $slots_json = $slots;
+                        foreach ($slots as $slot) {
+                            $slots_json[$slot->slot] = array('id'=>$slot->id, 'slot'=>$slot->slot,
+                                                            'page'=>$slot->page);
+                        }
+                        echo json_encode(array('slots' => $slots_json));
                         break;
                 }
                 break;

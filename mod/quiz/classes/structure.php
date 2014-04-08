@@ -291,13 +291,16 @@ class structure {
         // print_object($slotnumber);
         // print_object($repagtype);
         // exit;
-        if ($repagtype == 1) {
-            new \quiz_repaginate($quizslots, $slotnumber, 'join');
-        } else if ($repagtype == 2) {
-            new \quiz_repaginate($quizslots, $slotnumber, 'separate');
-        }
+//         if ($repagtype == 1) {
+//             new \quiz_repaginate($quizslots, $slotnumber, 'join');
+//         } else if ($repagtype == 2) {
+//             new \quiz_repaginate($quizslots, $slotnumber, 'separate');
+//         }
 
-        $updatedquizslots = $DB->get_records('quiz_slots', array('quizid' => $quizid), 'slot', 'slot,page');
+        $repaginate = new \quiz_repaginate($quizid, $quizslots);
+        $repaginate->repaginate($slotnumber, $repagtype);
+//         $updatedquizslots = $DB->get_records('quiz_slots', array('quizid' => $quizid), 'slot', 'slot,page');
+        $updatedquizslots = $repaginate->get_slots();
 
         return $updatedquizslots;
     }
