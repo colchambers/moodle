@@ -499,8 +499,8 @@ class mod_quiz_edit_renderer extends plugin_renderer_base {
             // Add the add-menu at the page level.
             $addmenu = html_writer::tag('span', $this->add_menu_actions($quiz, $question, $pageurl), array('class' => 'add-menu-outer'));
 
-            $output .= html_writer::tag('li', $page.$addmenu,  array('class' => $pagenumberclass . ' ' . $dragdropclass.' page', 'id' => 'page-' . $pagenumber));
-//             $output .= $addmenu;
+            $output .= html_writer::tag('li', $page,  array('class' => $pagenumberclass . ' ' . $dragdropclass.' page', 'id' => 'page-' . $pagenumber));
+            $output .= $addmenu;
         }
 
         if ($questiontypehtml = $this->quiz_section_question($quiz, $structure, $course, $completioninfo, $question, $sectionreturn, $pageurl)) {
