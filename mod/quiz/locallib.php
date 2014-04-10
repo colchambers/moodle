@@ -1261,7 +1261,8 @@ function quiz_question_page_join_button($quiz, $question) {
         return '';
     }
 
-    $url = new moodle_url($PAGE->url, array('sesskey' => sesskey(), 'join' => $question->slot));
+    $url = new moodle_url('repaginate.php', array('cmid' =>$quiz->cmid, 'quizid' => $quiz->id,
+                'slot' => $question->slot, 'repag' => 1, 'sesskey' => sesskey()));
 
     $strjoin = get_string('joinpage', 'quiz');
 
