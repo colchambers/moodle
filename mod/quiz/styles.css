@@ -1368,7 +1368,7 @@ bank window's title is prominent enough*/
 #page-mod-quiz-edit ul.slots li.activity div.activityinstance .questiontext {font-weight: bold; margin-left: 5px;}
 
 .path-mod-quiz ul.slots li.section li.activity {background: #E6E6E6; margin: 3px 0 3px 0}
-.path-mod-quiz ul.slots li.section li.activity.descriptionqtype_description {background: #CEBAFF;}
+.path-mod-quiz ul.slots li.section li.activity.qtype_description {background: #CEBAFF;}
 .path-mod-quiz ul.slots li.section li.activity.page {background: #FFFFFF;}
 .path-mod-quiz ul.slots li.section li.activity a.preview {margin-left: 5px}
 .path-mod-quiz ul.slots li.section li.activity .instancemaxmark {margin-left: 5px}

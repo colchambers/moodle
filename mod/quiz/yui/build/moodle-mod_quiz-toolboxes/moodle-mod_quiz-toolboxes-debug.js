@@ -21,11 +21,14 @@ YUI.add('moodle-mod_quiz-toolboxes', function (Y, NAME) {
         EDITINSTRUCTIONS : 'editinstructions',
         EDITINGMAXMARK: 'editor_displayed',
         HIDE : 'hide',
+        JOIN: 'page_join',
         MODINDENTCOUNT : 'mod-indent-',
         MODINDENTHUGE : 'mod-indent-huge',
         MODULEIDPREFIX : 'slot-',
+        PAGE: 'page',
         SECTIONHIDDENCLASS : 'hidden',
         SECTIONIDPREFIX : 'section-',
+        SLOT : 'slot',
         SHOW : 'editing_show',
         TITLEEDITOR : 'titleeditor'
     },
@@ -54,12 +57,17 @@ YUI.add('moodle-mod_quiz-toolboxes', function (Y, NAME) {
         PAGELI : 'li.page',
         SECTIONUL : 'ul.section',
         SHOW : 'a.'+CSS.SHOW,
-        SHOWHIDE : 'a.editing_showhide'
+        SHOWHIDE : 'a.editing_showhide',
+        SLOTLI : 'li.slot',
+        SLOTNUMBER : 'span.slotnumber'
     },
     INDENTLIMITS = {
         MIN: 0,
         MAX: 16
     },
+    CONSTANTS =  {
+            PAGENUMBERPREFIX : 'Page '
+        },
     BODY = Y.one(document.body);
 
 // Setup the basic namespace.
@@ -242,6 +250,13 @@ Y.extend(RESOURCETOOLBOX, TOOLBOX, {
      * @protected
      */
     editmaxmarkevents: [],
+    
+    /**
+     * 
+     */
+    NODE_PAGE: 1,
+    NODE_SLOT: 2,
+    NODE_JOIN: 3,
 
     /**
      * Initialize the resource toolbox
@@ -536,7 +551,7 @@ Y.extend(RESOURCETOOLBOX, TOOLBOX, {
     },
 
     /**
-     * Joins or separates the given slot with the page of the previous slot. Reorders the pages of 
+     * Joins or separates the given slot with the page of the previous slot. Reorders the pages of
      * the other slots
      *
      * @protected
@@ -588,6 +603,8 @@ Y.extend(RESOURCETOOLBOX, TOOLBOX, {
     },
     repaginate_slots: function(slots) {
         console.log(slots);
+        this.slots = slots;
+        console.log(this.slots);
 //        for(var x=0;i<slots.length;x++){
         var slot;
         var section = Y.one(SELECTOR.PAGECONTENT+' '+SELECTOR.SECTIONUL);
@@ -606,6 +623,48 @@ Y.extend(RESOURCETOOLBOX, TOOLBOX, {
         
         var activities = section.all(SELECTOR.ACTIVITYLI);
         activities.each(function(node) {
+            console.log('activities: 1');
+            console.log(this.slots);
+            
+            // What element is it? page/slot/link
+            // what is the current slot?
+            var type;
+            var slot;
+            if(node.hasClass(CSS.PAGE)){
+               type = this.NODE_PAGE; 
+               slot = node.next(SELECTOR.SLOTLI);
+            } else if (node.hasClass(CSS.SLOT)){
+                type = this.NODE_SLOT;  
+                slot = node;
+            } else if (node.hasClass(CSS.JOIN)){
+                type = this.NODE_JOIN;
+                slot = node.previous(SELECTOR.SLOTLI);
+            }
+            
+            // getSlotnumber() Should be a method of util.slot
+            var slotnumber = Number(slot.one(SELECTOR.SLOTNUMBER).get('text'));
+            console.log('type = '+type);
+            console.log('slotnumber = '+slotnumber);
+            if(!type){
+                return;
+            }
+            
+            // Is it correct?
+            if(!this.slots.hasOwnProperty(slotnumber)){
+                // An error. We should handle this.
+                return;
+            }
+            
+            var slotdata = this.slots[slotnumber];
+            console.log(slotdata);
+            
+            if(type == this.NODE_PAGE){
+                // Get page number
+                var pagenumber = this.getPageNumber(node);
+                console.log('pagenumber = '+pagenumber);
+                // Is the page number correct?
+                
+            }
 //            var button;
 //            if (node.one(SELECTOR.SHOW)) {
 //                button = node.one(SELECTOR.SHOW);
@@ -620,6 +679,26 @@ Y.extend(RESOURCETOOLBOX, TOOLBOX, {
 //                M.mod_quiz.resource_toolbox.handle_resource_dim(button, node, action);
 //            }
         }, this);
+    },
+    
+    /**
+     * Determines the page Number for the provided page.
+     *
+     * @method getId
+     * @param page {Node} The page to find an ID for.
+     * @return {Number|false} The ID of the page in question or false if no ID was found.
+     */
+    getPageNumber: function(page) {
+        // We perform a simple substitution operation to get the ID.
+        var number = page.get('text').replace(
+                CONSTANTS.PAGENUMBERPREFIX, '');
+
+        // Attempt to validate the ID.
+        number = parseInt(number, 10);
+        if (typeof number === 'number' && isFinite(number)) {
+            return number;
+        }
+        return false;
     }
 },
 {

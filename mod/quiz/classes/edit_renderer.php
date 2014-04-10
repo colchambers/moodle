@@ -498,7 +498,7 @@ class mod_quiz_edit_renderer extends plugin_renderer_base {
         }
 
         if ($questiontypehtml = $this->quiz_section_question($quiz, $structure, $course, $completioninfo, $question, $sectionreturn, $pageurl)) {
-            $questionclasses = 'activity ' . $question->qtype . 'qtype_' . $question->qtype;
+            $questionclasses = 'activity ' . $question->qtype . ' qtype_' . $question->qtype . ' slot';
             $output .= html_writer::tag('li', $questiontypehtml, array('class' => $questionclasses, 'id' => 'slot-' . $slotid));
         }
 

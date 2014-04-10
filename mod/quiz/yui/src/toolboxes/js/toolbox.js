@@ -19,11 +19,14 @@
         EDITINSTRUCTIONS : 'editinstructions',
         EDITINGMAXMARK: 'editor_displayed',
         HIDE : 'hide',
+        JOIN: 'page_join',
         MODINDENTCOUNT : 'mod-indent-',
         MODINDENTHUGE : 'mod-indent-huge',
         MODULEIDPREFIX : 'slot-',
+        PAGE: 'page',
         SECTIONHIDDENCLASS : 'hidden',
         SECTIONIDPREFIX : 'section-',
+        SLOT : 'slot',
         SHOW : 'editing_show',
         TITLEEDITOR : 'titleeditor'
     },
@@ -52,12 +55,17 @@
         PAGELI : 'li.page',
         SECTIONUL : 'ul.section',
         SHOW : 'a.'+CSS.SHOW,
-        SHOWHIDE : 'a.editing_showhide'
+        SHOWHIDE : 'a.editing_showhide',
+        SLOTLI : 'li.slot',
+        SLOTNUMBER : 'span.slotnumber'
     },
     INDENTLIMITS = {
         MIN: 0,
         MAX: 16
     },
+    CONSTANTS =  {
+            PAGENUMBERPREFIX : 'Page '
+        },
     BODY = Y.one(document.body);
 
 // Setup the basic namespace.
