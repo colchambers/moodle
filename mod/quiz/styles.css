@@ -1324,8 +1324,9 @@ bank window's title is prominent enough*/
 .path-mod-quiz li.activity > div {position:relative;}
 
 #page-mod-quiz-edit .add-menu-outer {
-    diaplay: inline;
+    display: inline;
     text-align: right;
+    float: right;
     --margin-bottom: -1.5em;'
     margin-left: 55em;'
 }
@@ -1357,6 +1358,9 @@ bank window's title is prominent enough*/
     text-align: left;
     margin-left: -4em;
     margin-bottom: -1.5em;
+}
+#page-mod-quiz-edit .pagenumber .text {
+    float: left;
 }
 #page-mod-quiz-edit .nopagenumber{
     text-align: left;

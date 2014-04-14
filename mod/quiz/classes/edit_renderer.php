@@ -490,6 +490,8 @@ class mod_quiz_edit_renderer extends plugin_renderer_base {
         $slotnumber = $this->get_question_info($structure, $question->id, 'slot');
         $pagenumber = $this->get_question_info($structure, $question->id, 'page');
         $page = $pagenumber ? get_string('page') . ' ' . $pagenumber : null;
+        // Put page in a span for easier styling.
+        $page = html_writer::tag('span', $page, array('class' => 'text'));
 
         $pagenumberclass = 'pagenumber'; // TODO MDL-43089 to add appropriate class name here
         $dragdropclass = 'activity yui3-dd-drop';
@@ -499,8 +501,8 @@ class mod_quiz_edit_renderer extends plugin_renderer_base {
             // Add the add-menu at the page level.
             $addmenu = html_writer::tag('span', $this->add_menu_actions($quiz, $question, $pageurl), array('class' => 'add-menu-outer'));
 
-            $output .= html_writer::tag('li', $page,  array('class' => $pagenumberclass . ' ' . $dragdropclass.' page', 'id' => 'page-' . $pagenumber));
-            $output .= $addmenu;
+            $output .= html_writer::tag('li', $page.$addmenu,  array('class' => $pagenumberclass . ' ' . $dragdropclass.' page', 'id' => 'page-' . $pagenumber));
+//             $output .= $addmenu;
         }
 
         if ($questiontypehtml = $this->quiz_section_question($quiz, $structure, $course, $completioninfo, $question, $sectionreturn, $pageurl)) {
