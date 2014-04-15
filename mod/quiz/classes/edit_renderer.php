@@ -807,7 +807,7 @@ class mod_quiz_edit_renderer extends plugin_renderer_base {
 //         if ($this->page->user_is_editing()) {
 //             $questionicons .= ' '. $this->add_menu_actions($quiz, $question, $pageurl);
 
-//             $output .= html_writer::span($questionicons, 'actions');
+            $output .= html_writer::span('', 'actions');
 //         }
 
         $output .= html_writer::end_tag('div'); // $indentclasses
