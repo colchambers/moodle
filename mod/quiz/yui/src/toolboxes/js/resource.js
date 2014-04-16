@@ -102,10 +102,9 @@ Y.extend(RESOURCETOOLBOX, TOOLBOX, {
                 this.delete_with_confirmation(ev, node, activity, action);
                 break;
             case 'linkpage':
+            case 'unlinkpage':
                 // The user wishes to edit the maxmark of the resource.
                 this.link_page(ev, node, activity, action);
-                break;
-            case 'unlinkpage':
                 break;
             default:
                 // Nothing to do here!
@@ -447,7 +446,7 @@ Y.extend(RESOURCETOOLBOX, TOOLBOX, {
             
             if(type == this.NODE_PAGE){
                 // Get page number
-                var pagenumber = this.getPageNumber(node);
+                var pagenumber = Y.Moodle.mod_quiz.util.page.getNumber(node);
                 console.log('pagenumber = '+pagenumber);
                 // Is the page number correct?
                 
