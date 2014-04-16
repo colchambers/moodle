@@ -282,7 +282,7 @@ class structure {
     function link_slot_to_page($quiz, $slot, $type) {
         global $DB;
         require_once("locallib.php");
-        require_once('repaginate.php');
+        require_once('classes/repaginate.php');
         $quizid = $quiz->id;
         $slotnumber = $slot;
         $repagtype = $type;
