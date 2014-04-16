@@ -101,9 +101,11 @@ Y.extend(RESOURCETOOLBOX, TOOLBOX, {
                 // The user is deleting the activity.
                 this.delete_with_confirmation(ev, node, activity, action);
                 break;
-            case 'joinpage':
+            case 'linkpage':
                 // The user wishes to edit the maxmark of the resource.
-                this.join_page(ev, node, activity, action);
+                this.link_page(ev, node, activity, action);
+                break;
+            case 'unlinkpage':
                 break;
             default:
                 // Nothing to do here!
@@ -340,13 +342,13 @@ Y.extend(RESOURCETOOLBOX, TOOLBOX, {
      * the other slots
      *
      * @protected
-     * @method join_page
+     * @method link_page
      * @param {EventFacade} ev The event that was fired.
      * @param {Node} button The button that triggered this action.
      * @param {Node} activity The activity node that this action will be performed on.
      * @chainable
      */
-    join_page: function(ev, button, activity) {
+    link_page: function(ev, button, activity) {
         // Prevent the default button action
         ev.preventDefault();
 

@@ -304,4 +304,11 @@ class structure {
 
         return $updatedquizslots;
     }
+
+    public function get_last_slot() {
+        $slots = $this->get_quiz_slots();
+        $keys = array_keys($slots);
+        $id = array_pop($keys);
+        return $slots[$id];
+    }
 }
