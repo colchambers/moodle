@@ -63,9 +63,6 @@
         MIN: 0,
         MAX: 16
     },
-    CONSTANTS =  {
-            PAGENUMBERPREFIX : 'Page '
-        },
     BODY = Y.one(document.body);
 
 // Setup the basic namespace.

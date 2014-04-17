@@ -104,7 +104,8 @@ Y.extend(RESOURCETOOLBOX, TOOLBOX, {
             case 'linkpage':
             case 'unlinkpage':
                 // The user wishes to edit the maxmark of the resource.
-                this.link_page(ev, node, activity, action);
+                var value = action == 'linkpage'?1:2;
+                this.link_page(ev, node, activity, value);
                 break;
             default:
                 // Nothing to do here!
@@ -347,7 +348,7 @@ Y.extend(RESOURCETOOLBOX, TOOLBOX, {
      * @param {Node} activity The activity node that this action will be performed on.
      * @chainable
      */
-    link_page: function(ev, button, activity) {
+    link_page: function(ev, button, activity, value) {
         // Prevent the default button action
         ev.preventDefault();
 
@@ -366,7 +367,7 @@ Y.extend(RESOURCETOOLBOX, TOOLBOX, {
             'class': 'resource',
             'field': 'linkslottopage',
             'id':    slotnumber,
-            'value': 1
+            'value': value
         };
         
         slotnumber = activity.previous('li.activity').one('.slotnumber').get('text');
@@ -388,9 +389,9 @@ Y.extend(RESOURCETOOLBOX, TOOLBOX, {
         return this;
     },
     repaginate_slots: function(slots) {
-        console.log(slots);
+//        console.log(slots);
         this.slots = slots;
-        console.log(this.slots);
+//        console.log(this.slots);
 //        for(var x=0;i<slots.length;x++){
         var slot;
         var section = Y.one(SELECTOR.PAGECONTENT+' '+SELECTOR.SECTIONUL);
@@ -401,16 +402,16 @@ Y.extend(RESOURCETOOLBOX, TOOLBOX, {
                 continue;
             }
             
-            console.log(key);
+//            console.log(key);
             slot = slots[key];
-            console.log(slot);
+//            console.log(slot);
             
         }
         
         var activities = section.all(SELECTOR.ACTIVITYLI);
         activities.each(function(node) {
-            console.log('activities: 1');
-            console.log(this.slots);
+//            console.log('activities: 1');
+//            console.log(this.slots);
             
             // What element is it? page/slot/link
             // what is the current slot?
@@ -429,8 +430,8 @@ Y.extend(RESOURCETOOLBOX, TOOLBOX, {
             
             // getSlotnumber() Should be a method of util.slot
             var slotnumber = Number(slot.one(SELECTOR.SLOTNUMBER).get('text'));
-            console.log('type = '+type);
-            console.log('slotnumber = '+slotnumber);
+//            console.log('type = '+type);
+//            console.log('slotnumber = '+slotnumber);
             if(!type){
                 return;
             }
@@ -442,13 +443,27 @@ Y.extend(RESOURCETOOLBOX, TOOLBOX, {
             }
             
             var slotdata = this.slots[slotnumber];
-            console.log(slotdata);
+//            console.log(slotdata);
             
             if(type == this.NODE_PAGE){
                 // Get page number
                 var pagenumber = Y.Moodle.mod_quiz.util.page.getNumber(node);
                 console.log('pagenumber = '+pagenumber);
+                console.log('slotdata.page = '+slotdata.page);
                 // Is the page number correct?
+                if (slotdata.page == pagenumber) {
+                    console.log('slotdata.page == pagenumber return');
+                    return;
+                }
+                
+                if (pagenumber < slotdata.page) {
+                    // Remove page node.
+                    node.remove();
+                }
+                else {
+                    // Add page node.
+                    console.log('pagenumber > slotdata.page update page number');
+                }
                 
             }
 //            var button;
@@ -465,26 +480,6 @@ Y.extend(RESOURCETOOLBOX, TOOLBOX, {
 //                M.mod_quiz.resource_toolbox.handle_resource_dim(button, node, action);
 //            }
         }, this);
-    },
-    
-    /**
-     * Determines the page Number for the provided page.
-     *
-     * @method getId
-     * @param page {Node} The page to find an ID for.
-     * @return {Number|false} The ID of the page in question or false if no ID was found.
-     */
-    getPageNumber: function(page) {
-        // We perform a simple substitution operation to get the ID.
-        var number = page.get('text').replace(
-                CONSTANTS.PAGENUMBERPREFIX, '');
-
-        // Attempt to validate the ID.
-        number = parseInt(number, 10);
-        if (typeof number === 'number' && isFinite(number)) {
-            return number;
-        }
-        return false;
     }
 },
 {

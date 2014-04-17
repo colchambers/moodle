@@ -284,7 +284,7 @@ class structure {
         require_once("locallib.php");
         require_once('classes/repaginate.php');
         $quizid = $quiz->id;
-        $slotnumber = $slot;
+        $slotnumber = $slot+1;
         $repagtype = $type;
         $quizslots = $DB->get_records('quiz_slots', array('quizid' => $quizid), 'slot');
 
