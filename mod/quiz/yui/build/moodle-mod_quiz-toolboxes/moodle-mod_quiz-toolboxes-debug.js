@@ -903,4 +903,14 @@ M.mod_quiz.init_section_toolbox = function(config) {
 };
 
 
-}, '@VERSION@', {"requires": ["node", "base", "event-key", "node", "io", "moodle-mod_quiz-quizbase"]});
+}, '@VERSION@', {
+    "requires": [
+        "node",
+        "base",
+        "event-key",
+        "node",
+        "io",
+        "moodle-mod_quiz-quizbase",
+        "moodle-mod_quiz-util"
+    ]
+});
