@@ -73,8 +73,8 @@ Y.Moodle.mod_quiz.util.page = {
      * Determines the page number for the provided page.
      *
      * @method getNumber
-     * @param page {Node} The page to find an ID for.
-     * @return {Number|false} The ID of the page in question or false if no ID was found.
+     * @param page {Node} The page to find a number for.
+     * @return {Number|false} The number of the page in question or false if no number was found.
      */
     getNumber: function(page) {
         // We perform a simple substitution operation to get the ID.

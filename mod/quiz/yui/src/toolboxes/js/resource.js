@@ -362,7 +362,7 @@ Y.extend(RESOURCETOOLBOX, TOOLBOX, {
             'value': value
         };
         
-        slotnumber = activity.previous('li.activity').one('.slotnumber').get('text');
+        slotnumber = Y.Moodle.mod_quiz.util.slot.getNumber(activity.previous('li.activity'));
         if (slotnumber) {
             data.id = Number(slotnumber);
         }
@@ -396,7 +396,7 @@ Y.extend(RESOURCETOOLBOX, TOOLBOX, {
             }
             
             // getSlotnumber() Should be a method of util.slot
-            var slotnumber = Number(slot.one(SELECTOR.SLOTNUMBER).get('text'));
+            var slotnumber = Number(Y.Moodle.mod_quiz.util.slot.getNumber(slot));
             if(!type){
                 return;
             }

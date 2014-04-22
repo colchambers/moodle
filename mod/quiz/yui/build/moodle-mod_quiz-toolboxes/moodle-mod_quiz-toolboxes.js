@@ -58,8 +58,7 @@ YUI.add('moodle-mod_quiz-toolboxes', function (Y, NAME) {
         SECTIONUL : 'ul.section',
         SHOW : 'a.'+CSS.SHOW,
         SHOWHIDE : 'a.editing_showhide',
-        SLOTLI : 'li.slot',
-        SLOTNUMBER : 'span.slotnumber'
+        SLOTLI : 'li.slot'
     },
     INDENTLIMITS = {
         MIN: 0,
@@ -574,7 +573,7 @@ Y.extend(RESOURCETOOLBOX, TOOLBOX, {
             'value': value
         };
         
-        slotnumber = activity.previous('li.activity').one('.slotnumber').get('text');
+        slotnumber = Y.Moodle.mod_quiz.util.slot.getNumber(activity.previous('li.activity'));
         if (slotnumber) {
             data.id = Number(slotnumber);
         }
@@ -608,7 +607,7 @@ Y.extend(RESOURCETOOLBOX, TOOLBOX, {
             }
             
             // getSlotnumber() Should be a method of util.slot
-            var slotnumber = Number(slot.one(SELECTOR.SLOTNUMBER).get('text'));
+            var slotnumber = Number(Y.Moodle.mod_quiz.util.slot.getNumber(slot));
             if(!type){
                 return;
             }

@@ -21,7 +21,8 @@ Y.Moodle.mod_quiz.util.slot = {
     },
     SELECTORS: {
         SLOT: '.activity',
-        INSTANCENAME: '.instancename'
+        INSTANCENAME: '.instancename',
+        NUMBER: 'span.slotnumber'
     },
 
     /**
@@ -68,6 +69,23 @@ Y.Moodle.mod_quiz.util.slot = {
             return instance.get('firstChild').get('data');
         }
         return null;
+    },
+
+    /**
+     * Determines the slot number for the provided slot.
+     *
+     * @method getNumber
+     * @param slot {Node} The slot to find a number for.
+     * @return {Number|false} The number of the slot in question or false if no number was found.
+     */
+    getNumber: function(slot) {
+        var number = slot.one(this.SELECTORS.NUMBER).get('text');
+        // Attempt to validate the ID.
+        number = parseInt(number, 10);
+        if (typeof number === 'number' && isFinite(number)) {
+            return number;
+        }
+        return false;
     }
 };
 
