@@ -352,17 +352,9 @@ Y.extend(RESOURCETOOLBOX, TOOLBOX, {
         // Prevent the default button action
         ev.preventDefault();
 
-        // Get the element we're working on
-        var element   = activity;
-
-        // If it is confirmed.
-
-        var spinner = this.add_spinner(activity);
-        // Actually remove the element.
-//            element.remove();
-        var slotnumber = 0;
+        var spinner = this.add_spinner(activity),
+            slotnumber = 0;
         
-//        Y.Moodle.mod_quiz.util.slot.getSlotNumber(element);
         var data = {
             'class': 'resource',
             'field': 'linkslottopage',
@@ -377,41 +369,16 @@ Y.extend(RESOURCETOOLBOX, TOOLBOX, {
         this.send_request(data, spinner, function(response) {
             if (response.slots) {
                 this.repaginate_slots(response.slots);
-////                activity.one(SELECTOR.INSTANCEMAXMARK).setContent(response.instancemaxmark);
             }
         });
-//            this.send_request(data);
-//            if (M.core.actionmenu && M.core.actionmenu.instance) {
-//                M.core.actionmenu.instance.hideMenu();
-//            }
-
 
         return this;
     },
     repaginate_slots: function(slots) {
-//        console.log(slots);
         this.slots = slots;
-//        console.log(this.slots);
-//        for(var x=0;i<slots.length;x++){
-        var slot;
-        var section = Y.one(SELECTOR.PAGECONTENT+' '+SELECTOR.SECTIONUL);
-//        var resources = section
-        for(var key in slots){
-            
-            if(!slots.hasOwnProperty(key)){
-                continue;
-            }
-            
-//            console.log(key);
-            slot = slots[key];
-//            console.log(slot);
-            
-        }
-        
-        var activities = section.all(SELECTOR.ACTIVITYLI);
+        var section = Y.one(SELECTOR.PAGECONTENT+' '+SELECTOR.SECTIONUL),
+            activities = section.all(SELECTOR.ACTIVITYLI);
         activities.each(function(node) {
-//            console.log('activities: 1');
-//            console.log(this.slots);
             
             // What element is it? page/slot/link
             // what is the current slot?
@@ -430,8 +397,6 @@ Y.extend(RESOURCETOOLBOX, TOOLBOX, {
             
             // getSlotnumber() Should be a method of util.slot
             var slotnumber = Number(slot.one(SELECTOR.SLOTNUMBER).get('text'));
-//            console.log('type = '+type);
-//            console.log('slotnumber = '+slotnumber);
             if(!type){
                 return;
             }
@@ -443,7 +408,6 @@ Y.extend(RESOURCETOOLBOX, TOOLBOX, {
             }
             
             var slotdata = this.slots[slotnumber];
-//            console.log(slotdata);
             
             if(type == this.NODE_PAGE){
                 // Get page number
@@ -466,19 +430,6 @@ Y.extend(RESOURCETOOLBOX, TOOLBOX, {
                 }
                 
             }
-//            var button;
-//            if (node.one(SELECTOR.SHOW)) {
-//                button = node.one(SELECTOR.SHOW);
-//            } else {
-//                button = node.one(SELECTOR.HIDE);
-//            }
-//            var activityid = Y.Moodle.mod_quiz.util.slot.getId(node);
-//
-//            // NOTE: resourcestotoggle is returned as a string instead
-//            // of a Number so we must cast our activityid to a String.
-//            if (Y.Array.indexOf(response.resourcestotoggle, "" + activityid) !== -1) {
-//                M.mod_quiz.resource_toolbox.handle_resource_dim(button, node, action);
-//            }
         }, this);
     }
 },
