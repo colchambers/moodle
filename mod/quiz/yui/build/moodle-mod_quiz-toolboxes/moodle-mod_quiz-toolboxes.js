@@ -314,9 +314,10 @@ Y.extend(RESOURCETOOLBOX, TOOLBOX, {
                 break;
             case 'linkpage':
             case 'unlinkpage':
-                // The user wishes to edit the maxmark of the resource.
+                // The user is linking or unlinking pages.
                 var value = action == 'linkpage'?1:2;
-                this.link_page(ev, node, activity, value);
+                // TODO MDL-43089 finish link page functionality. 
+//                this.link_page(ev, node, activity, value);
                 break;
             default:
                 // Nothing to do here!
