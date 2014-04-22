@@ -149,7 +149,7 @@ Y.extend(DRAGRESOURCE, M.core.dragdrop, {
         }
         
         if (dragnode.previous('li.page')) {
-            params.page = Number(this.getPageId(dragnode.previous('li.page')));
+            params.page = Number(Y.Moodle.mod_quiz.util.page.getId(dragnode.previous('li.page')));
         }
 
         // Do AJAX request
@@ -181,26 +181,6 @@ Y.extend(DRAGRESOURCE, M.core.dragdrop, {
             },
             context:this
         });
-    },
-    
-    /**
-     * Determines the page ID for the provided page.
-     *
-     * @method getId
-     * @param page {Node} The page to find an ID for.
-     * @return {Number|false} The ID of the page in question or false if no ID was found.
-     */
-    getPageId: function(page) {
-        // We perform a simple substitution operation to get the ID.
-        var id = page.get('id').replace(
-                CONSTANTS.PAGEIDPREFIX, '');
-
-        // Attempt to validate the ID.
-        id = parseInt(id, 10);
-        if (typeof id === 'number' && isFinite(id)) {
-            return id;
-        }
-        return false;
     }
 }, {
     NAME: 'mod_quiz-dragdrop-resource',
