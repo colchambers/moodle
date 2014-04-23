@@ -20,9 +20,11 @@ Y.Moodle.mod_quiz.util.slot = {
         SLOTIDPREFIX : 'slot-'
     },
     SELECTORS: {
-        SLOT: '.activity',
+        SLOT: 'li.slot',
         INSTANCENAME: '.instancename',
-        NUMBER: 'span.slotnumber'
+        NUMBER: 'span.slotnumber',
+        PAGECONTENT : 'div#page-content',
+        SECTIONUL : 'ul.section'
     },
 
     /**
@@ -75,7 +77,7 @@ Y.Moodle.mod_quiz.util.slot = {
      * Determines the slot number for the provided slot.
      *
      * @method getNumber
-     * @param slot {Node} The slot to find a number for.
+     * @param slot {Node} The slot to find the number for.
      * @return {Number|false} The number of the slot in question or false if no number was found.
      */
     getNumber: function(slot) {
@@ -86,6 +88,38 @@ Y.Moodle.mod_quiz.util.slot = {
             return number;
         }
         return false;
+    },
+
+    /**
+     * Updates the slot number for the provided slot.
+     *
+     * @method setNumber
+     * @param slot {Node} The slot to update the number for.
+     * @return void
+     */
+    setNumber: function(slot, number) {
+        slot.one(this.SELECTORS.NUMBER).set('text', number);
+    },
+
+    /**
+     * Returns a list of all slot elements on the page.
+     *
+     * @method getSlots
+     * @return {node[]} An array containing slot nodes.
+     */
+    getSlots: function() {
+        return Y.all(this.SELECTORS.PAGECONTENT+' '+this.SELECTORS.SECTIONUL+' '+this.SELECTORS.SLOT);
+    },
+
+    /**
+     * Returns the previous slot to the give slot.
+     *
+     * @method getPrevious
+     * @param slot Slot node
+     * @return {node|false} The previous slot node or false.
+     */
+    getPrevious: function(slot) {
+        return slot.previous(this.SELECTORS.SLOT);
     }
 };
 

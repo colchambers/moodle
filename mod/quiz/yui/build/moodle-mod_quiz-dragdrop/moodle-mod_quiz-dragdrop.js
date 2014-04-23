@@ -455,6 +455,7 @@ Y.extend(DRAGRESOURCE, M.core.dragdrop, {
                     var responsetext = Y.JSON.parse(response.responseText);
                     var params = {element: dragnode, visible: responsetext.visible};
                     M.mod_quiz.quizbase.invoke_function('set_visibility_resource_ui', params);
+                    this.reorder_slots();
                     this.unlock_drag_handle(drag, CSS.EDITINGMOVE);
                     window.setTimeout(function() {
                         spinner.hide();
@@ -469,6 +470,29 @@ Y.extend(DRAGRESOURCE, M.core.dragdrop, {
             },
             context:this
         });
+    },
+
+    /**
+     * Reset the order of the numbers given to each slot. 
+     *
+     * @method reorder_slots
+     * @return void
+     */
+    reorder_slots: function() {
+        // Get list of slot nodes.
+        var slots = Y.Moodle.mod_quiz.util.slot.getSlots();
+        // Loop through slots incrementing the number each time.
+        slots.each(function(slot) {
+            var previousSlot = Y.Moodle.mod_quiz.util.slot.getPrevious(slot),
+                previousslotnumber = 0;
+            if(previousSlot){
+                previousslotnumber = Y.Moodle.mod_quiz.util.slot.getNumber(previousSlot);
+            }
+
+            // Set slot number.
+            Y.Moodle.mod_quiz.util.slot.setNumber(slot, previousslotnumber+1);
+        }, this);
+
     }
 }, {
     NAME: 'mod_quiz-dragdrop-resource',
