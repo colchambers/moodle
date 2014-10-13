@@ -50,6 +50,11 @@ use Behat\Mink\Exception\ExpectationException as ExpectationException,
 class behat_general extends behat_base {
 
     /**
+     * Name to give the main browser window. Without it chrome will hang switch back to an
+     * unnamed window.
+     */
+    protected $mainwindowname = 'main';
+    /**
      * Opens Moodle homepage.
      *
      * @Given /^I am on homepage$/
@@ -151,13 +156,64 @@ class behat_general extends behat_base {
     }
 
     /**
+     * Sets the current window name.
+     *
+     * @When /^I set the window name to "([^"]*)"$/
+     * @param string $name
+     */
+    public function i_set_window_name($name) {
+        return $this->getSession()->evaluateScript('window.name="'.$this->escape($name).'"');
+    }
+
+    /**
      * Switches to the specified window. Useful when interacting with popup windows.
      *
      * @Given /^I switch to "(?P<window_name_string>(?:[^"]|\\")*)" window$/
      * @param string $windowname
+     * @param boolean $setwindowname optional should window name be set?
      */
-    public function switch_to_window($windowname) {
+    public function switch_to_window($windowname, $setwindowname=true) {
+        // Set the root window name for chrome.
+        if ($setwindowname && $windowname !== $this->mainwindowname) {
+            /*
+             * The default window name in Chrome is "" but selenium won't accept this as a window name.
+             * You must set the default name to switch back to the default window.
+             *
+             * This works fine with a default and a child window but not with multiple windows.
+             * If you started with window A then opened Windows B and C then switched between B and C
+             * then you would not need to set the window name.
+             *
+             * To get round this you
+             * 1) either set the window name when behat initialises the default window, I don't yet know
+             * where that is in moodle.
+             * 2) Get the current window name. Only the default window will have an empty name. The latest
+             * version of selenium driver has the methods getWindowNames() and getWindowName()
+             * https://github.com/Behat/MinkSelenium2Driver/blob/master/src/Behat/Mink/Driver/Selenium2Driver.php
+             * The current moodle version doesn't so this isn't possible.
+             *
+             * I would prefer the former solution which leaves this switch_to_window method cleaner but I don't
+             * know the moodle implementation of Behat well enough to implement it.
+             *
+             * I don't have the time to properly implement #2.
+             *
+             * The compromise is the method below. This ensures that chrome will switch windows in
+             * the most common scenario of one child window being opened. If there are more child
+             * windows then the behat scripts will need to call the method below.
+             */
+            $this->i_set_window_name($this->mainwindowname);
+        }
         $this->getSession()->switchToWindow($windowname);
+    }
+
+    /**
+     * Switches to the specified window without setting the name of the main window. Useful when
+     * interacting with popup windows. Handles situations with multiple windows.
+     *
+     * @Given /^I switch to "(?P<window_name_string>(?:[^"]|\\")*)" window not setting the main window name$/
+     * @param string $windowname
+     */
+    public function switch_to_window_not_set_window_name($windowname) {
+        $this->getSession()->switchToWindow($this->mainwindowname, false);
     }
 
     /**
@@ -166,7 +222,7 @@ class behat_general extends behat_base {
      * @Given /^I switch to the main window$/
      */
     public function switch_to_the_main_window() {
-        $this->getSession()->switchToWindow();
+        $this->getSession()->switchToWindow($this->mainwindowname);
     }
 
     /**
