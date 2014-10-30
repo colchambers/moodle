@@ -913,3 +913,10 @@ table#categoryquestions {
 .questionbank .categoryselectallcontainer {
     background-color: #FFF;
 }
+/*Base theme needs extra support.*/
+#page-mod-quiz-edit ul.slots li.section ul.section {
+    list-style: none;
+}
+#page-mod-quiz-edit #region-main {
+    padding-bottom: 10em;
+}
