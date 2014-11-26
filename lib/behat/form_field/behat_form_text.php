@@ -57,6 +57,15 @@ class behat_form_text extends behat_form_field {
     }
 
     /**
+     * Returns the current id of the element.
+     *
+     * @return string
+     */
+    public function get_id() {
+        return $this->field->getAttribute('id');
+    }
+
+    /**
      * Matches the provided value against the current field value.
      *
      * @param string $expectedvalue
@@ -64,6 +73,16 @@ class behat_form_text extends behat_form_field {
      */
     public function matches($expectedvalue) {
         return $this->text_matches($expectedvalue);
+    }
+
+    /**
+     * Execute the given javascript code on the client.
+     *
+     * param string
+     * return void
+     */
+    public function execute_script($js) {
+        return $this->session->executeScript($js);
     }
 
 }
