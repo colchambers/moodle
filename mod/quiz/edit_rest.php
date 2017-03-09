@@ -150,7 +150,7 @@ switch($requestmethod) {
 
                         $ids = explode(',', $ids);
                         foreach ($ids as $id) {
-                            $slot = $DB->get_record('quiz_slots', array('quizid' => $quiz->id, 'id' => $id).
+                            $slot = $DB->get_record('quiz_slots', array('quizid' => $quiz->id, 'id' => $id),
                                     '*', MUST_EXIST);
                             if (quiz_has_question_use($quiz, $slot->slot)) {
                                 $structure->remove_slot($slot->slot);
