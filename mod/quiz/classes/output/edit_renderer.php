@@ -61,8 +61,14 @@ class edit_renderer extends \plugin_renderer_base {
         $output .= $this->quiz_state_warnings($structure);
         $output .= $this->quiz_information($structure);
         $output .= $this->maximum_grade_input($structure, $pageurl);
+
+
+        $output .= html_writer::start_div('btn-group', ['role'=>'group']);
         $output .= $this->repaginate_button($structure, $pageurl);
         $output .= $this->selectmultiple_button($structure);
+        $output .= html_writer::end_tag('div');
+
+
         $output .= $this->total_marks($quizobj->get_quiz());
 
         // Show the questions organised into sections and pages.
@@ -220,7 +226,7 @@ class edit_renderer extends \plugin_renderer_base {
         }
 
         return html_writer::start_tag('div', $containeroptions) .
-                html_writer::empty_tag('input', $buttonoptions);
+                html_writer::tag('button', get_string('repaginatecommand', 'quiz'), $buttonoptions) . html_writer::end_tag('div');
     }
 
     /**
@@ -239,7 +245,7 @@ class edit_renderer extends \plugin_renderer_base {
         if (!$structure->can_be_edited()) {
             $buttonoptions['disabled'] = 'disabled';
         }
-        return html_writer::empty_tag('input', $buttonoptions) . html_writer::end_tag('div');
+        return html_writer::tag('button', get_string('selectmultipleitems', 'quiz'), $buttonoptions) ;
     }
 
     /**
