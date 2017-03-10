@@ -250,19 +250,30 @@ class edit_renderer extends \plugin_renderer_base {
             'class' => 'btn btn-secondary'
         );
 
-        $groupoptions = array(
-                'class' => 'btn-group selectmultiplecommand actions',
-                'role' => 'group'
+        $toolbaroptions = array(
+            'class' => 'btn-toolbar selectmultiplecommand actions',
+            'role' => 'toolbar',
+            'aria-label' => 'Select multiple toolbar'
         );
 
+        $output .= html_writer::start_tag('div',$toolbaroptions);
+        $deletegroupoptions = array(
+            'class' => 'btn-group selectmultiplecommand actions',
+            'role' => 'group'
+        );
         $output .= html_writer::tag('div', html_writer::tag('button', get_string('deleteselected', 'mod_quiz'),
                         $buttondeleteoptions) . " " . html_writer::tag('button', get_string('cancel', 'moodle'),
-                        $buttoncanceloptions), $groupoptions);
+                        $buttoncanceloptions), $deletegroupoptions);
 
+        $selectallgroupoptions = array(
+                'class' => 'btn-group selectmultiplecommandbuttons',
+                'role' => 'group'
+        );
         // Select all/deselect all questions.
         $output .= html_writer::tag('div', html_writer::link('#', get_string('selectall', 'quiz'),
                         array('id' => 'questionselectall')) . " / " . html_writer::link('#', get_string('selectnone', 'quiz'),
-                        array('id' => 'questiondeselectall')), array('class' => 'selectmultiplecommandbuttons'));
+                        array('id' => 'questiondeselectall')), $selectallgroupoptions);
+        $output .= html_writer::end_tag('div');
         return $output;
     }
 
