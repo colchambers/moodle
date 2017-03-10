@@ -1119,7 +1119,7 @@ table#categoryquestions {
     margin: 0.6em 0.4em;
 }
 
-.selectmultiplecommand,
+.btn-group.selectmultiplecommand,
 .selectmultiplecommandbuttons,
 .select-multiple-checkbox {
     display: none;
@@ -1162,7 +1162,7 @@ table#categoryquestions {
     display: none;
 }
 
-#page-mod-quiz-edit.select-multiple .mod-quiz-edit-content .rpcontainerclass {
+#page-mod-quiz-edit.select-multiple .mod-quiz-edit-content .edit-toolbar .m-b-1{
     display: none;
 }
 
